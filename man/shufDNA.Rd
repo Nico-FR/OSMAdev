@@ -2,7 +2,7 @@
 % Please edit documentation in R/shufDNA.R
 \name{shufDNA}
 \alias{shufDNA}
-\title{DNA shuffle within sequence}
+\title{DNA shuffle}
 \usage{
 shufDNA(DNA.string, center, window, shuffle.start, width)
 }
@@ -13,18 +13,18 @@ shufDNA(DNA.string, center, window, shuffle.start, width)
 
 \item{window}{output size in bp (centered around `center`). For +/-0.5 Mb on either side of `center`, use 1 Mb.}
 
-\item{shuffle.start}{start of the segment to be swapped in bp.}
+\item{shuffle.start}{start of the segment to shuffle in bp.}
 
-\item{width}{width of the segment to be swapped in bp.}
+\item{width}{width of the segment to shuffle in bp.}
 }
 \value{
 DNAstring
 }
 \description{
-From DNA sequence (e.g. chromosome), the function compute the nucleotide frequencies which is used to generate a random sequence of a DNA segment.
+From DNA sequence (e.g. chromosome), the function generate "a random" sequence of a DNA segment. The random sequence is generated according to the nucleotide frequencies of the supplied DNA set.
 }
 \details{
-Note that fo simplify, DNA positions are 0 base!
+Note that for simplify, DNA positions are 0 base!
 For example, if shuffle.start = 1e6 (1Mb) and width = 1e3, the first nucleotide position will be 1,000,001bp and the last 1,001,000.
 }
 \examples{

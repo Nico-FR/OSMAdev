@@ -1,10 +1,10 @@
 #' @title DNA swapping within sequence
 #'
-#' @description From DNA sequence (e.g. chromosome), the function copy a DNA segment  which is moved to another position.
+#' @description From DNA sequence (e.g. chromosome), the function copy a DNA segment which is moved to another position.
 #' The positioning is done by overwriting the destination sequence of the same size.
 #'
 #' @details
-#' Note that fo simplify, DNA positions are 0 base!
+#' Note that to simplify, DNA positions are 0 base!
 #' For example, if origin.start = 1e6 (1Mb) and width = 1e3, the first nucleotide position will be 1,000,001bp and the last 1,001,000.
 #'
 #' @param DNA.string DNA input as DNAstring object

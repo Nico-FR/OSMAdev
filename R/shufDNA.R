@@ -32,7 +32,8 @@ shufDNA <- function(DNA.string, center, window, shuffle.start, width) {
   w.start <- center - window %/% 2 + 1
   w.stop <- center + window %/% 2
 
-  if (w.start < 0 | w.stop > length(DNA.string)) {
+  if (w.start < 0) {w.start = 1 ; w.stop = window}
+  if (w.stop > length(DNA.string)) {
     stop("the window is outside the DNA set!")}
 
   if (w.start > shuffle.start | w.stop < (shuffle.start + width)) {

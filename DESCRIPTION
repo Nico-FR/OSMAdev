@@ -1,7 +1,7 @@
 Package: OSMAdev
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.0
+Version: 0.1.2
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
@@ -11,4 +11,5 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
 Imports: 
-    Biostrings
+    Biostrings,
+    magrittr
