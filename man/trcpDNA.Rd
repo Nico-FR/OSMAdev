@@ -28,10 +28,11 @@ By default the breakpoint of the output sequence is the middle of window. For ex
 DNA.seq1 = Biostrings::DNAString("AAAAAGGGGG")
 DNA.seq2 = Biostrings::DNAString("CCCCCTTTTT")
 
-# reciprocal translocation of the DNA.seq1 with DNA.seq1
+# reciprocal translocation of the DNA.seq1 with DNA.seq2
 trcpDNA(DNA.string1 = DNA.seq1, DNA.string2 = DNA.seq2, window = 10)
 
-# reciprocal translocation of the DNA.seq1 with DNA.seq1, which sequence change at third bp (breakpoint = 3)
+# reciprocal translocation of the DNA.seq1 with DNA.seq2,
+# which sequence change at third bp (breakpoint = 3)
 trcpDNA(DNA.string1 = DNA.seq1, DNA.string2 = DNA.seq2, window = 10, breakpoint = 3)
 
 }

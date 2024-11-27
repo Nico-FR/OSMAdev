@@ -4,10 +4,10 @@
 \alias{swapDNA}
 \title{DNA swapping within sequence}
 \usage{
-swapDNA(DNA.string, center, window, origin.start, width, target.start)
+swapDNA(dna.string, center, window, origin.start, width, target.start)
 }
 \arguments{
-\item{DNA.string}{DNA input as DNAstring object}
+\item{dna.string}{DNA input as DNAstring object}
 
 \item{center}{center of output DNA window in bp.}
 
@@ -31,12 +31,12 @@ Note that to simplify, DNA positions are 0 base!
 For example, if origin.start = 1e6 (1Mb) and width = 1e3, the first nucleotide position will be 1,000,001bp and the last 1,001,000.
 }
 \examples{
-DNA.seq = Biostrings::DNAString("AAAAAAAAAATTTTTTTTTTCCCCCCCCCC")
-DNA.seq
+dna.seq = Biostrings::DNAString("AAAAAAAAAATTTTTTTTTTCCCCCCCCCC")
+dna.seq
 
 #swapping of the first 10 nucleotides (1:10) in the last 10 nucleotides (21:30)
 #output window of 20 nucletodides (i.e. 11:30)
-swapDNA(DNA.string = DNA.seq, center = 20, window = 20,
+swapDNA(dna.string = dna.seq, center = 20, window = 20,
     origin.start = 0, width = 10, target.start = 20)
 
 }

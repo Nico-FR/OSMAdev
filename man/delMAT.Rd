@@ -7,13 +7,15 @@
 delMAT(matrix, bin.width, start, stop, limits = "nearest")
 }
 \arguments{
-\item{matrix}{DNA input as DNAstring object (e.g chromosome sequence)}
+\item{matrix}{DNA input as DNAstring object (e.g chromosome sequence).}
+
+\item{bin.width}{bin width of the matrix.}
 
 \item{start}{one or more positions of deletion start in bp.}
 
 \item{stop}{one or more positions of deletion stop/end in bp.}
 
-\item{limits}{"nearest" to removed bins according to the nearest bin boundaries (default), max to removed bins involved in deletion, to removed bins fully involved in deletion (see example and details).}
+\item{limits}{"nearest" to removed bins according to the nearest bin boundaries (default), max to removed bins involved in deletion, min to removed bins fully involved in deletion (see example and details).}
 }
 \value{
 DNAstring
@@ -23,9 +25,9 @@ From DNA position of a deletion, the function remove the bins concern by the del
 }
 \details{
 When a deletion start or end is positioned in a middle of a bin (i.e. not at the boundary), 3 solutions are possible:
--remove the bin from the matrix,
--keep the bin in the matrix,
--choose the nearest bin boundary.
+-remove the bin from the matrix (limits = "max"),
+-keep the bin in the matrix (limits = "min"),
+-choose the nearest bin boundary (limits = "nearest").
 }
 \examples{
 matrix = sapply(1:5, function(x){rep(x, 5)}) ; matrix

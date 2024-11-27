@@ -2,38 +2,33 @@
 % Please edit documentation in R/insDNA.R
 \name{insDNA}
 \alias{insDNA}
-\title{insert a DNA segment into another DNAsegment}
+\title{DNA insertion}
 \usage{
-insDNA(DNA.string1, DNA.string2, window, breakpoint, fpos = "center")
+insDNA(dna.string1, dna.string2, start, rev = FALSE)
 }
 \arguments{
-\item{DNA.string1}{DNA input as DNAstring object to be inserted.}
+\item{dna.string1}{DNA input as DNAstring object to be inserted.}
 
-\item{DNA.string2}{DNA input as DNAstring object (e.g chromosome sequence) where the insertion will take place.}
+\item{dna.string2}{DNA input as DNAstring object (e.g chromosome sequence) where the insertion will take place.}
 
-\item{window}{output size in bp. E.g, for +/-0.5 Mb of each sequences, use 1 Mb.}
+\item{start}{position in bp of the insertion on DNA.string2}
 
-\item{breakpoint}{position in bp of the breakpoint (i.e position where the insertion occurs) on DNA.string2 sequence. If breakpoint = 11, the insertion is realised between bp number 10 and 11.}
-
-\item{fpos}{final position in bp of the insertion according to the output sequence. By default fpos = "center" to center the insertion on the putût sequence.}
+\item{rev}{whether or not to reverse the inserted sequence, default = FALSE.}
 }
 \value{
 DNAstring
 }
 \description{
-From two DNA sequence (e.g. chromosome), the function export a segment from the first DNA sequence (DNA.string1) into the second DNA sequence (DNA.string2).
-}
-\details{
-By default the breakpoint of the output sequence is the middle of window. For example, if window is 10 bp, the breakpoint is between base pair number 5 and 6.
+insert of DNA segment into another DNA segment
 }
 \examples{
-DNA.seq1 = Biostrings::DNAString("GG")
+DNA.seq1 = Biostrings::DNAString("GATG")
 DNA.seq2 = Biostrings::DNAString("AAAAACCCCCTTTTTAAAAA")
 
-#output of 10bp with the insertion in the middle of the output:
-insDNA(DNA.string1 = DNA.seq1, DNA.string2 = DNA.seq2, window = 10, breakpoint = 11, fpos = "center")
+# insertion startint at bp number 11:
+insDNA(dna.string1 = DNA.seq1, dna.string2 = DNA.seq2, start = 11, rev = FALSE)
 
-#output of 10bp with the insertion at 6bp of output:
-insDNA(DNA.string1 = DNA.seq1, DNA.string2 = DNA.seq2, window = 10, breakpoint = 11, fpos = 6)
+# idem but reversed
+insDNA(dna.string1 = DNA.seq1, dna.string2 = DNA.seq2, start = 11, rev = TRUE)
 
 }

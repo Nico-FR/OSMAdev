@@ -4,15 +4,16 @@
 #'
 #' @details
 #' When a deletion start or end is positioned in a middle of a bin (i.e. not at the boundary), 3 solutions are possible:
-#' -remove the bin from the matrix,
-#' -keep the bin in the matrix,
-#' -choose the nearest bin boundary.
+#' -remove the bin from the matrix (limits = "max"),
+#' -keep the bin in the matrix (limits = "min"),
+#' -choose the nearest bin boundary (limits = "nearest").
 #'
 #'
-#' @param matrix DNA input as DNAstring object (e.g chromosome sequence)
+#' @param matrix DNA input as DNAstring object (e.g chromosome sequence).
+#' @param bin.width bin width of the matrix.
 #' @param start one or more positions of deletion start in bp.
 #' @param stop one or more positions of deletion stop/end in bp.
-#' @param limits "nearest" to removed bins according to the nearest bin boundaries (default), max to removed bins involved in deletion, to removed bins fully involved in deletion (see example and details).
+#' @param limits "nearest" to removed bins according to the nearest bin boundaries (default), max to removed bins involved in deletion, min to removed bins fully involved in deletion (see example and details).
 #'
 #' @return DNAstring
 #'

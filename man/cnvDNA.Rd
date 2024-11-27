@@ -4,18 +4,16 @@
 \alias{cnvDNA}
 \title{create copy number variations of sequences}
 \usage{
-cnvDNA(DNA.string, window, cnv.start, width, nb_copy, fpos = "center")
+cnvDNA(dna.string, start, stop, nb_copy)
 }
 \arguments{
-\item{DNA.string}{DNA input as DNAstring object (e.g chromosome sequence)}
+\item{dna.string}{DNA input as DNAstring object (e.g chromosome sequence)}
 
-\item{window}{output size in bp.}
+\item{start}{start of the CNV in bp.}
 
-\item{cnv.start}{start of the CNV in bp.}
+\item{stop}{stop of the CNV in bp.}
 
-\item{width}{width of the CNV in bp.}
-
-\item{fpos}{final position in bp of the CNV according to the output sequence. By default fpos = "center" to center the CNV on the output sequence.}
+\item{nb_copy}{final number of copy of the CNV (0 copy for deletion).}
 }
 \value{
 DNAstring
@@ -27,17 +25,10 @@ From DNA sequence (e.g. chromosome), the function create X copy of a DNA segment
 DNA.seq = Biostrings::DNAString("AAAAAAAAAAAAAAGTTGCCCCCCCCCCCCCC")
 DNA.seq
 
-#duplication of "T" nucleotides (16:17)
-#output window of 20 nucletodides with de duplication start at the center (i.e 11th bp)
-cnvDNA(DNA.string = DNA.seq, window = 20,
-    cnv.start = 16, width = 2, nb_copy = 2, fpos = "center")
+# duplication of "T" nucleotides (positions 16:17)
+cnvDNA(dna.string = DNA.seq, start = 16, stop = 17, nb_copy = 2)
 
-#output window of 20 nucletodides with de duplication start at 6bp
-cnvDNA(DNA.string = DNA.seq, window = 20,
-    cnv.start = 16, width = 2, nb_copy = 2, fpos = 6)
-
-#deletion of "T" nucleotides (16:17)
-cnvDNA(DNA.string = DNA.seq, window = 20,
-    cnv.start = 16, width = 2, nb_copy = 0)
+# deletion of "T" nucleotides (16:17)
+cnvDNA(dna.string = DNA.seq, start = 16, stop = 17, nb_copy = 0)
 
 }

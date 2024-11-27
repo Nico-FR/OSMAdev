@@ -4,14 +4,14 @@
 \alias{invDNA}
 \title{reverse a DNA segment (inversion)}
 \usage{
-invDNA(dna.string, inv.start, inv.stop)
+invDNA(dna.string, start, stop)
 }
 \arguments{
 \item{dna.string}{DNA input as DNAstring object (e.g chromosome sequence)}
 
-\item{inv.start}{position in bp of the first nucleotide to reverse}
+\item{start}{position in bp of the first nucleotide to reverse}
 
-\item{inv.stopt}{position in bp of the last nucleotide to reverse}
+\item{stop}{position in bp of the last nucleotide to reverse}
 }
 \value{
 DNAstring
@@ -20,9 +20,9 @@ DNAstring
 to do
 }
 \examples{
-DNA.seq = Biostrings::DNAString("AAAAACCCCCTTTTTAAAAA")
+DNA.seq = Biostrings::DNAString("AAAAACCCCCAAAAACCCCC")
 
-#inversion of CCCCCTTTTT nucleotides:
-invDNA(dna.string = DNA.seq, inv.start = 6, inv.stop = 15)
+# inversion of CCCCCTTTTT nucleotides:
+invDNA(dna.string = DNA.seq, start = 6, stop = 15)
 
 }

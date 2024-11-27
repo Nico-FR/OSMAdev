@@ -4,8 +4,8 @@
 #'
 #'
 #' @param dna.string DNA input as DNAstring object (e.g chromosome sequence)
-#' @param inv.start position in bp of the first nucleotide to reverse
-#' @param inv.stopt position in bp of the last nucleotide to reverse
+#' @param start position in bp of the first nucleotide to reverse
+#' @param stop position in bp of the last nucleotide to reverse
 #'
 #' @return DNAstring
 #'
@@ -13,20 +13,20 @@
 #' @export
 #'
 #' @examples
-#' DNA.seq = Biostrings::DNAString("AAAAACCCCCTTTTTAAAAA")
+#' DNA.seq = Biostrings::DNAString("AAAAACCCCCAAAAACCCCC")
 #'
-#' #inversion of CCCCCTTTTT nucleotides:
-#' invDNA(dna.string = DNA.seq, inv.start = 6, inv.stop = 15)
+#' # inversion of CCCCCTTTTT nucleotides:
+#' invDNA(dna.string = DNA.seq, start = 6, stop = 15)
 #'
-invDNA <- function(dna.string, inv.start, inv.stop) {
+invDNA <- function(dna.string, start, stop) {
 
   mutated.seq = c(
 
-    dna.string[1:(inv.start - 1)],
+    dna.string[1:(start - 1)],
 
-    rev(dna.string[inv.start:inv.stop]),
+    rev(dna.string[start:stop]),
 
-    dna.string[(inv.stop + 1):length(dna.string)])
+    dna.string[(stop + 1):length(dna.string)])
 
   return(mutated.seq)
 }

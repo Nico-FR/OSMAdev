@@ -4,36 +4,48 @@
 \alias{shufDNA}
 \title{DNA shuffle}
 \usage{
-shufDNA(DNA.string, center, window, shuffle.start, width)
+shufDNA(dna.string, start, stop, probability = c(0.25, 0.25, 0.25, 0.25))
 }
 \arguments{
-\item{DNA.string}{DNA input as DNAstring object}
+\item{dna.string}{DNA input as DNAstring object}
 
-\item{center}{center of output DNA window in bp.}
+\item{start}{start of the segment to shuffle in bp.}
 
-\item{window}{output size in bp (centered around `center`). For +/-0.5 Mb on either side of `center`, use 1 Mb.}
+\item{stop}{stop of the segment to shuffle in bp.}
 
-\item{shuffle.start}{start of the segment to shuffle in bp.}
-
-\item{width}{width of the segment to shuffle in bp.}
+\item{probability}{A,T,G and C nucleotides probabilities respectively. Default is c(0.25, 0.25, 0.25, 0.25) to randomly call each nucleotide. Use probability = "full" to perform randomization based on the nucleotide probability of the entire sequence supplied. Use the “partial” parameter to take into account only the probability of the segment to be randomized.}
 }
 \value{
 DNAstring
 }
 \description{
-From DNA sequence (e.g. chromosome), the function generate "a random" sequence of a DNA segment. The random sequence is generated according to the nucleotide frequencies of the supplied DNA set.
+Shuffle of a DNA segment with random or custom nucleotides calling.
 }
 \details{
-Note that for simplify, DNA positions are 0 base!
-For example, if shuffle.start = 1e6 (1Mb) and width = 1e3, the first nucleotide position will be 1,000,001bp and the last 1,001,000.
+The nucleotides calling can be based with differents nucleotides probabilities (see examples):
+ 1) the nucleotide frequency of the full sequence provided,
+ 2) the nucleotide frequency of the segment to shuffle,
+ 3) an equivalent frequency for each nucleotide (i.e random calling).
+ 4) custom probabilities of each nucleotides.
 }
 \examples{
-DNA.seq = Biostrings::DNAString("AAAAAAAAAATTTTTTTTTTCCCCCCCCCC")
-DNA.seq
+dna.seq = Biostrings::DNAString("AAAAATTTTTGGGGGAAAAA")
+dna.seq
 
-#shuffle of the last 10 nucleotides (21:30)
-#output window of 30 nucletodides (i.e. 1:30)
-shufDNA(DNA.string = DNA.seq, center = 15, window = 30,
-    shuffle.start = 20, width = 10)
+# shuffle of T and G nucleotides (6:15) with random calling of nucleotides,
+# i.e probability = (0.25, 0.25, 0.25, 0.25):
+shufDNA(dna.string = dna.seq, start = 6, stop = 15)
+
+# shuffle of T and G nucleotides (6:15) based on the probability of the entire sequence provided,
+# i.e equivalent to probability = c(0.5, 0.25, 0.25, 0) in this example::
+shufDNA(dna.string = dna.seq, start = 6, stop = 15, probability = "full")
+
+# idem but based on the probability of the segment to shuffle,
+# i.e equivalent to probability = c(0, 0.5, 0.5, 0) in this example:
+shufDNA(dna.string = dna.seq, start = 6, stop = 15, probability = "partial")
+
+# idem but with custom probabilities:
+# probability = c(0.5, 0, 0, 0.5) for A,T,G and C respectively:
+shufDNA(dna.string = dna.seq, start = 6, stop = 15, probability = c(0.5, 0, 0, 0.5))
 
 }

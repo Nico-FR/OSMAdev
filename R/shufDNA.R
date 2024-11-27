@@ -1,60 +1,65 @@
 #' @title DNA shuffle
 #'
-#' @description From DNA sequence (e.g. chromosome), the function generate "a random" sequence of a DNA segment. The random sequence is generated according to the nucleotide frequencies of the supplied DNA set.
+#' @description Shuffle of a DNA segment with random or custom nucleotides calling.
 #'
-#' @details
-#' Note that for simplify, DNA positions are 0 base!
-#' For example, if shuffle.start = 1e6 (1Mb) and width = 1e3, the first nucleotide position will be 1,000,001bp and the last 1,001,000.
+#' @details The nucleotides calling can be based with differents nucleotides probabilities (see examples):
+#'  1) the nucleotide frequency of the full sequence provided,
+#'  2) the nucleotide frequency of the segment to shuffle,
+#'  3) an equivalent frequency for each nucleotide (i.e random calling).
+#'  4) custom probabilities of each nucleotides.
 #'
-#' @param DNA.string DNA input as DNAstring object
-#' @param center center of output DNA window in bp.
-#' @param window output size in bp (centered around `center`). For +/-0.5 Mb on either side of `center`, use 1 Mb.
-#' @param shuffle.start start of the segment to shuffle in bp.
-#' @param width width of the segment to shuffle in bp.
+#' @param dna.string DNA input as DNAstring object
+#' @param start start of the segment to shuffle in bp.
+#' @param stop stop of the segment to shuffle in bp.
+#' @param probability A,T,G and C nucleotides probabilities respectively. Default is c(0.25, 0.25, 0.25, 0.25) to randomly call each nucleotide. Use probability = "full" to perform randomization based on the nucleotide probability of the entire sequence supplied. Use the “partial” parameter to take into account only the probability of the segment to be randomized.
 #'
 #' @return DNAstring
 #'
-#' @importFrom Biostrings DNAString alphabetFrequency
+#' @importFrom Biostrings DNAString letterFrequency
 #' @export
 #'
 #' @examples
-#' DNA.seq = Biostrings::DNAString("AAAAAAAAAATTTTTTTTTTCCCCCCCCCC")
-#' DNA.seq
+#' dna.seq = Biostrings::DNAString("AAAAATTTTTGGGGGAAAAA")
+#' dna.seq
 #'
-#' #shuffle of the last 10 nucleotides (21:30)
-#' #output window of 30 nucletodides (i.e. 1:30)
-#' shufDNA(DNA.string = DNA.seq, center = 15, window = 30,
-#'     shuffle.start = 20, width = 10)
+#' # shuffle of T and G nucleotides (6:15) with random calling of nucleotides,
+#' # i.e probability = (0.25, 0.25, 0.25, 0.25):
+#' shufDNA(dna.string = dna.seq, start = 6, stop = 15)
 #'
-shufDNA <- function(DNA.string, center, window, shuffle.start, width) {
+#' # shuffle of T and G nucleotides (6:15) based on the probability of the entire sequence provided,
+#' # i.e equivalent to probability = c(0.5, 0.25, 0.25, 0) in this example::
+#' shufDNA(dna.string = dna.seq, start = 6, stop = 15, probability = "full")
+#'
+#' # idem but based on the probability of the segment to shuffle,
+#' # i.e equivalent to probability = c(0, 0.5, 0.5, 0) in this example:
+#' shufDNA(dna.string = dna.seq, start = 6, stop = 15, probability = "partial")
+#'
+#' # idem but with custom probabilities:
+#' # probability = c(0.5, 0, 0, 0.5) for A,T,G and C respectively:
+#' shufDNA(dna.string = dna.seq, start = 6, stop = 15, probability = c(0.5, 0, 0, 0.5))
+#'
+shufDNA <- function(dna.string, start, stop, probability = c(0.25, 0.25, 0.25, 0.25)) {
 
-  #window position
-  w.start <- center - window %/% 2 + 1
-  w.stop <- center + window %/% 2
+  shuffle.width = stop - start + 1
 
-  if (w.start < 0) {w.start = 1 ; w.stop = window}
-  if (w.stop > length(DNA.string)) {
-    stop("the window is outside the DNA set!")}
+  if (unique(probability == "full")) {
+    probability = Biostrings::letterFrequency(dna.string, letters=c("A","T","G", "C"), as.prob = TRUE)
+    }
 
-  if (w.start > shuffle.start | w.stop < (shuffle.start + width)) {
-    stop("the segment to shuffle (start or stop) is outside the window!")}
+  if (unique(probability == "partial")) {
+    probability = Biostrings::letterFrequency(dna.string[start:stop], letters=c("A","T","G", "C"), as.prob = TRUE)
+  }
 
-  #freq of window
-  seq = DNA.string[w.start:w.stop]
-  freqs = Biostrings::alphabetFrequency(seq, baseOnly=TRUE, as.prob = TRUE)
+  #calling/shuffle
+  mut <- sample(c("A","T","G","C"),
+                shuffle.width, replace = TRUE,
+                prob = probability)
 
-  mut.start = shuffle.start - (center - window / 2) + 1
-  mut.stop = shuffle.start - (center - window / 2) + width
-
-  # shuffle
-  mut <- sample(names(freqs)[names(freqs) %in% c("A","T","C","G")],
-                width, replace = TRUE,
-                prob = freqs[names(freqs) %in% c("A","T","C","G")])
   mut <- DNAString(paste(mut, collapse = ""))
 
   #overwrite muated sequence
-  seq[mut.start:mut.stop] <- mut
+  dna.string[start:stop] <- mut
 
-  return(seq)
+  return(dna.string)
 }
 
