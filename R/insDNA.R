@@ -9,14 +9,14 @@
 #'
 #' @return DNAstring
 #'
-#' @importFrom Biostrings DNAString
+#' @importFrom Biostrings DNAString reverseComplement
 #' @export
 #'
 #' @examples
 #' DNA.seq1 = Biostrings::DNAString("GATG")
 #' DNA.seq2 = Biostrings::DNAString("AAAAACCCCCTTTTTAAAAA")
 #'
-#' # insertion startint at bp number 11:
+#' # insertion starting at bp number 11:
 #' insDNA(dna.string1 = DNA.seq1, dna.string2 = DNA.seq2, start = 11, rev = FALSE)
 #'
 #' # idem but reversed
@@ -27,7 +27,7 @@ insDNA <- function(dna.string1, dna.string2, start, rev = FALSE) {
   mutated.seq = c(
     dna.string2[1:(start - 1)],
 
-    if (isTRUE(rev)) {rev(dna.string1)} else {dna.string1},
+    if (isTRUE(rev)) {Biostrings::reverseComplement(dna.string1)} else {dna.string1},
 
     dna.string2[(start):length(dna.string2)])
 

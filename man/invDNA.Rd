@@ -22,7 +22,7 @@ to do
 \examples{
 DNA.seq = Biostrings::DNAString("AAAAACCCCCAAAAACCCCC")
 
-# inversion of CCCCCTTTTT nucleotides:
+# inversion of CCCCCAAAAA nucleotides:
 invDNA(dna.string = DNA.seq, start = 6, stop = 15)
 
 }

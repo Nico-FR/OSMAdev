@@ -25,7 +25,7 @@ insert of DNA segment into another DNA segment
 DNA.seq1 = Biostrings::DNAString("GATG")
 DNA.seq2 = Biostrings::DNAString("AAAAACCCCCTTTTTAAAAA")
 
-# insertion startint at bp number 11:
+# insertion starting at bp number 11:
 insDNA(dna.string1 = DNA.seq1, dna.string2 = DNA.seq2, start = 11, rev = FALSE)
 
 # idem but reversed

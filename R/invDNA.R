@@ -9,13 +9,13 @@
 #'
 #' @return DNAstring
 #'
-#' @importFrom Biostrings DNAString
+#' @importFrom Biostrings DNAString reverseComplement
 #' @export
 #'
 #' @examples
 #' DNA.seq = Biostrings::DNAString("AAAAACCCCCAAAAACCCCC")
 #'
-#' # inversion of CCCCCTTTTT nucleotides:
+#' # inversion of CCCCCAAAAA nucleotides:
 #' invDNA(dna.string = DNA.seq, start = 6, stop = 15)
 #'
 invDNA <- function(dna.string, start, stop) {
@@ -24,7 +24,7 @@ invDNA <- function(dna.string, start, stop) {
 
     dna.string[1:(start - 1)],
 
-    rev(dna.string[start:stop]),
+    Biostrings::reverseComplement(dna.string[start:stop]),
 
     dna.string[(stop + 1):length(dna.string)])
 
