@@ -16,7 +16,7 @@ SIC(
 )
 }
 \arguments{
-\item{mutated.mat, wildtype.mat}{mutated (query) or wiltype (control, subject) matrices as `dgCMatrix` or `matrix` object for only one chromosome.}
+\item{mutated.mat, wildtype.mat}{mutated (query) or wiltype (control, subject) matrices as \code{dgCMatrix} or \code{matrix} object for only one chromosome.}
 
 \item{bin.width}{Bin width of the matrix in base pair.}
 

@@ -11,7 +11,7 @@ swapDNA(dna.string, center, window, origin.start, width, target.start)
 
 \item{center}{center of output DNA window in bp.}
 
-\item{window}{output size in bp (centered around `center`). E.g, for +/-0.5 Mb on either side of `center`, use 1 Mb.}
+\item{window}{output size in bp (centered around \code{center}). E.g, for +/-0.5 Mb on either side of \code{center}, use 1 Mb.}
 
 \item{origin.start}{start of the segment to be swapped in bp.}
 

@@ -33,7 +33,7 @@ orca2matrix(
 \item{model}{orca prediction model (32e6 or 1e6). Default is 32e6.}
 }
 \value{
-A `Matrix` class object: upper triangular and sparse Matrix
+A \code{Matrix} class object: upper triangular and sparse Matrix
 }
 \description{
 This function create an empty matrix of the full chromosome which is then filled with Orca matrix (i.e. 250x250 bins).

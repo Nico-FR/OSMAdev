@@ -3,10 +3,10 @@
 #' @description Shuffle of a DNA segment with random or custom nucleotides calling.
 #'
 #' @details The nucleotides calling can be based with differents nucleotides probabilities (see examples):
-#'  1) the nucleotide frequency of the full sequence provided,
-#'  2) the nucleotide frequency of the segment to shuffle,
-#'  3) an equivalent frequency for each nucleotide (i.e random calling).
-#'  4) custom probabilities of each nucleotides.
+#' * the nucleotide frequency of the full sequence provided,
+#' * the nucleotide frequency of the segment to shuffle,
+#' * an equivalent frequency for each nucleotide (i.e random calling).
+#' * custom probabilities of each nucleotides.
 #'
 #' @param dna.string DNA input as DNAstring object
 #' @param start start of the segment to shuffle in bp.
