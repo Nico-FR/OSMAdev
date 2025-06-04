@@ -132,11 +132,8 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
     }
 
     #select the results based on the parameters
-    results <- results %>%
+    results_hff <- results %>%
       dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
-
-    # Combine the results into the metadataMT list
-    metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results)
 
   ##############################
   # if ESC prediction
@@ -171,11 +168,11 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   }
 
     #select the results based on the parameters
-    results <- results %>%
+    results_esc <- results %>%
       dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
 
     # Combine the results into the metadataMT list
-    metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results)
+    metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_hff, results_esc)
 
     pb$tick()
 
