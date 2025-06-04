@@ -111,7 +111,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         WT.mat = read.table(paste0(predictions.dir, WT.ID, "_predictions_1000000_1M_hff.tsv"), header = FALSE, sep = "\t") %>% as.matrix()
       }
 
-      results <- lapply(1:nrow(metadataMT.lst[[i]]), function(i2) {
+      results_hff <- lapply(1:nrow(metadataMT.lst[[i]]), function(i2) {
 
         #get the ID of the MT matrix
         MT.ID = metadataMT.lst[[i]]$ID[i2]
@@ -132,7 +132,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
     }
 
     #select the results based on the parameters
-    results_hff <- results %>%
+    results_hff <- results_hff %>%
       dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
 
   ##############################
@@ -147,7 +147,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       WT.mat = read.table(paste0(predictions.dir, WT.ID, "_predictions_1000000_1M_esc.tsv"), header = FALSE, sep = "\t") %>% as.matrix()
     }
 
-    results <- lapply(1:nrow(metadataMT.lst[[i]]), function(i2) {
+    results_esc <- lapply(1:nrow(metadataMT.lst[[i]]), function(i2) {
 
       #get the ID of the MT matrix
       MT.ID = metadataMT.lst[[i]]$ID[i2]
@@ -168,7 +168,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   }
 
     #select the results based on the parameters
-    results_esc <- results %>%
+    results_esc <- results_esc %>%
       dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
 
     # Combine the results into the metadataMT list
