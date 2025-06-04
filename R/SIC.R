@@ -1,14 +1,18 @@
 #' @title Structural impact score between 2 matrices
 #'
-#' @description Measurement described in Zhou 2022 that calculates the average absolute log fold change of interactions between bin(s) (view point) and all other bins in specified window (start and stop).
+#' @description Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between 2 matrices.
+#' Fold change can be compute:
 #'
+#' * from one bin to all bins in the matrix (using view point parameters),
 #'
-#' @param mutated.mat,wildtype.mat mutated (query) or wiltype (control, subject) matrices as `dgCMatrix` or `matrix` object for only one chromosome.
+#' * to one bin to all bins in the matrix (using start/stop parameters).
+#'
+#' @param mutated.mat,wildtype.mat mutated (query) or wildtype (control, subject) matrices as `dgCMatrix` or `matrix` object for only one chromosome.
 #' @param bin.width Bin width of the matrix in base pair.
 #' @param vp.start Start of the view point in base pair.
-#' @param vp.stop Stop/end of the view point in base pair. Default is NULL to only use the bin where vp.start is located.
-#' @param start,stop Area in bp of the chromosome to be analyzed. Default is NULL to use the entire chromosome (i.e. entire matrix).
-#' @param verbose if TRUE, show information when view point does not match a bin.
+#' @param vp.stop Stop/end of the view point in base pair. Default is NULL to only use the bin where vp.start is located (ie: vp.stop = vp.start + bin.width).
+#' @param start,stop Area in bp of the chromosome to compute impact score. Default is NULL to use the entire chromosome (i.e. entire matrix).
+#' @param verbose if TRUE, show information when view point does not match a bin annotations.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -77,8 +81,8 @@ SIC <- function(mutated.mat, wildtype.mat, bin.width, vp.start, vp.stop = NULL, 
   WT <- WT[(vp.start - l.start + 1):(vp.stop - l.start + 1),]
 
   # Calculate SIC
-  ratio = MT / WT
-  SIC <- ratio %>% log2 %>% abs %>% mean(., na.rm = TRUE)
+  diff = MT - WT
+  SIC <- diff %>% abs %>% mean(., na.rm = TRUE)
 
   return(SIC)
 

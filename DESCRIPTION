@@ -1,7 +1,7 @@
 Package: OSMAdev
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.3.1
+Version: 0.4.0
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
@@ -10,10 +10,16 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     Biostrings,
     magrittr,
     Matrix,
     methods,
-    utils
+    utils,
+    BiocGenerics,
+    GenomicRanges,
+    IRanges,
+    dplyr,
+    progress,
+    tibble
