@@ -129,11 +129,16 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
           DI_HFF = fonction_DI(WT.mat, MT.mat)
         )
       }) %>% dplyr::bind_rows()
+
+      #select the results based on the parameters
+      results_hff <- results_hff %>%
+        dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
+
+      # Combine the results into the metadataMT list
+      metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_hff)
     }
 
-    #select the results based on the parameters
-    results_hff <- results_hff %>%
-      dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
+
 
   ##############################
   # if ESC prediction
@@ -165,15 +170,15 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         DI_ESC = fonction_DI(WT.mat, MT.mat)
       )
     }) %>% dplyr::bind_rows()
-  }
 
     #select the results based on the parameters
     results_esc <- results_esc %>%
       dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
 
     # Combine the results into the metadataMT list
-    metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_hff, results_esc)
+    metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_esc)
 
+  }
     pb$tick()
 
   }
@@ -182,6 +187,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   mutation_scores = do.call(rbind, metadataMT.lst)
   row.names(mutation_scores) <- NULL
 
+  # best scores analysis in the case of multiple mutations in the same region (i.e. rep >= 2 : multiple mutations in the same start.mut and stop.mut)
   if(any(duplicated(mutation_scores$start.mut))) {#if there is replicates (same region mutated more than ones)
     # add TRUE or FALSE to indicate the highest (SIC) or lowest (corr) score
     if ("corr_HFF" %in% colnames(mutation_scores)) {
