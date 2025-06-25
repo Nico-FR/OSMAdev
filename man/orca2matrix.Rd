@@ -16,7 +16,7 @@ orca2matrix(
 )
 }
 \arguments{
-\item{df_prediction.path}{The full path of the Orca matrix. Data frame without header which contains orca predictions, i.e. log(Obseved/Expected).}
+\item{df_prediction.path}{The full path of the Orca matrix (handles .gz extension). Data frame without header which contains orca predictions, i.e. log(Obseved/Expected).}
 
 \item{sep}{separator between matrix field (df_prediction.path or df_normmats.path), default is tabulation.}
 
@@ -28,7 +28,7 @@ orca2matrix(
 
 \item{output}{Character: Default is "OE" to return observed / expected counts. "Obs" to return observed counts.}
 
-\item{df_normmats.path}{Optional. Background distance-based expected balanced contact matrices. Only needed to return observed counts.}
+\item{df_normmats.path}{Optional. Background distance-based expected balanced contact matrices (handles .gz extension). Only needed to return observed interaction counts.}
 
 \item{model}{orca prediction model (32e6 or 1e6). Default is 32e6.}
 }

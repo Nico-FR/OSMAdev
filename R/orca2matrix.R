@@ -4,12 +4,12 @@
 #'
 #' @details From the matrices produced by orca_predict.genomepredict function.
 #'
-#' @param df_prediction.path The full path of the Orca matrix. Data frame without header which contains orca predictions, i.e. log(Obseved/Expected).
+#' @param df_prediction.path The full path of the Orca matrix (handles .gz extension). Data frame without header which contains orca predictions, i.e. log(Obseved/Expected).
 #' @param scale Size of the scale (i.e. window) of the predictions in base pair (i.e. 32Mb, 16Mb, 8Mb, 4Mb, 2Mb and 1Mb).
 #' @param mpos The coordinate to zoom into for multiscale prediction. By default mpos is the center of the 32Mb sequence provided (i.e. start + 16Mb).
 #' @param chromsize Chromosome size in base pair of the related chromosome.
 #' @param output Character: Default is "OE" to return observed / expected counts. "Obs" to return observed counts.
-#' @param df_normmats.path Optional. Background distance-based expected balanced contact matrices. Only needed to return observed counts.
+#' @param df_normmats.path Optional. Background distance-based expected balanced contact matrices (handles .gz extension). Only needed to return observed interaction counts.
 #' @param sep separator between matrix field (df_prediction.path or df_normmats.path), default is tabulation.
 #' @param model orca prediction model (32e6 or 1e6). Default is 32e6.
 #'
@@ -50,18 +50,29 @@ orca2matrix <- function(df_prediction.path, sep = "\t", mpos, scale, chromsize, 
   #create empty matrix
   mat = Matrix::Matrix(0, nrow = nbins, ncol = nbins, sparse = TRUE)
 
-  #read orca output
-  if (output == "OE") {
-    orca = utils::read.table(df_prediction.path, header = FALSE, sep = sep) %>% as.matrix() %>% exp
-  }
+  #read orca prediction
+  if (grepl("\\.gz$", df_prediction.path)) {
+    con <- gzfile(df_prediction.path, "r")
+    predictions = utils::read.table(con, header = FALSE, sep = sep) %>% as.matrix() %>% exp
+    close(con)
+    } else {
+      predictions = utils::read.table(df_prediction.path, header = FALSE, sep = sep) %>% as.matrix() %>% exp
+      }
+
   if (output == "Obs") {
-    predictions = utils::read.table(df_prediction.path, header = FALSE, sep = sep) %>% as.matrix() %>% exp
-    normats = utils::read.table(df_normmats.path, header = FALSE, sep = sep) %>% as.matrix()
-    orca = predictions * normats
+
+    if (grepl("\\.gz$", df_normmats.path)) {
+      con <- gzfile(df_normmats.path, "r")
+      normats = utils::read.table(con, header = FALSE, sep = sep) %>% as.matrix()
+      close(con)
+    } else {
+      normats = utils::read.table(df_normmats.path, header = FALSE, sep = sep) %>% as.matrix()
+      }
+    predictions = predictions * normats
   }
 
   #add upper input in the full upper matrix
-  mat[bin_start:bin_end, bin_start:bin_end][upper.tri(mat[bin_start:bin_end, bin_start:bin_end], diag = TRUE)] <- orca[upper.tri(orca, diag = TRUE)]
+  mat[bin_start:bin_end, bin_start:bin_end][upper.tri(mat[bin_start:bin_end, bin_start:bin_end], diag = TRUE)] <- predictions[upper.tri(predictions, diag = TRUE)]
 
   return(methods::as(mat, "CsparseMatrix"))
 }
