@@ -9,7 +9,7 @@
 #' -choose the nearest bin boundary (limits = "nearest").
 #'
 #'
-#' @param matrix DNA input as DNAstring object (e.g chromosome sequence).
+#' @param matrix interaction matrix for only one chromosome as `dgCMatrix` or `matrix` object.
 #' @param bin.width bin width of the matrix.
 #' @param start one or more positions of deletion start in bp.
 #' @param stop one or more positions of deletion stop/end in bp.
@@ -58,6 +58,10 @@ delMAT <- function(matrix, bin.width, start, stop, limits = "nearest") {
     ) %>% unlist
 
   bin_to_keep = (1:nrow(matrix))[!(1:nrow(matrix)) %in% bin_to_removed]
+
+  message(
+    paste0("Removing ", length(bin_to_removed), " bins from the matrix (from ",
+           (bin_to_removed[1] - 1) * bin.width /1e6, "Mb to ", bin_to_removed[length(bin_to_removed)] * bin.width / 1e6, "Mb)."))
 
   return(matrix[bin_to_keep,bin_to_keep])
 
