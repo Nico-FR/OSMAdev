@@ -65,7 +65,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   }
 
   if (!all(ID.metadatas %in% ID.path)) {
-    stop("Some IDs in metadataWT or metadataMT do not have corresponding prediction files in the predictions directory.")
+    warning("Some IDs in metadataWT or metadataMT do not have corresponding prediction files in the predictions directory.")
   }
 
 
@@ -187,32 +187,32 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   mutation_scores = do.call(rbind, metadataMT.lst)
   row.names(mutation_scores) <- NULL
 
-  # best scores analysis in the case of multiple mutations in the same region (i.e. rep >= 2 : multiple mutations in the same start.mut and stop.mut)
+  # best scores analysis in the case of multiple mutations in the same region (i.e. rep >= 2 : multiple mutations with the same start.mut and stop.mut)
   if(any(duplicated(mutation_scores$start.mut))) {#if there is replicates (same region mutated more than ones)
     # add TRUE or FALSE to indicate the highest (SIC) or lowest (corr) score
     if ("corr_HFF" %in% colnames(mutation_scores)) {
       mutation_scores <- mutation_scores %>%
-        group_by(start.mut, stop.mut) %>%
-        mutate(max_corr_HFF = corr_HFF == max(corr_HFF, na.rm = TRUE)) %>%
-        ungroup()
+        dplyr::group_by(start.mut, stop.mut) %>%
+        dplyr::mutate(max_corr_HFF = corr_HFF == max(corr_HFF, na.rm = TRUE)) %>%
+        dplyr::ungroup()
     }
     if ("SIC_HFF" %in% colnames(mutation_scores)) {
       mutation_scores <- mutation_scores %>%
-        group_by(start.mut, stop.mut) %>%
-        mutate(min_SIC_HFF = SIC_HFF == min(SIC_HFF, na.rm = TRUE)) %>%
-        ungroup()
+        dplyr::group_by(start.mut, stop.mut) %>%
+        dplyr::mutate(min_SIC_HFF = SIC_HFF == min(SIC_HFF, na.rm = TRUE)) %>%
+        dplyr::ungroup()
     }
     if ("corr_ESC" %in% colnames(mutation_scores)) {
       mutation_scores <- mutation_scores %>%
-        group_by(start.mut, stop.mut) %>%
-        mutate(max_corr_ESC = corr_ESC == max(corr_ESC, na.rm = TRUE)) %>%
-        ungroup()
+        dplyr::group_by(start.mut, stop.mut) %>%
+        dplyr::mutate(max_corr_ESC = corr_ESC == max(corr_ESC, na.rm = TRUE)) %>%
+        dplyr::ungroup()
     }
     if ("SIC_ESC" %in% colnames(mutation_scores)) {
       mutation_scores <- mutation_scores %>%
-        group_by(start.mut, stop.mut) %>%
-        mutate(min_SIC_ESC = SIC_ESC == min(SIC_ESC, na.rm = TRUE)) %>%
-        ungroup()
+        dplyr::group_by(start.mut, stop.mut) %>%
+        dplyr::mutate(min_SIC_ESC = SIC_ESC == min(SIC_ESC, na.rm = TRUE)) %>%
+        dplyr::ungroup()
     }
   }
 

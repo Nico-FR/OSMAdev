@@ -10,6 +10,10 @@ writeFastaWT(DNAstring, metadataWT, workdir = "./", gzip = TRUE)
 \item{DNAstring}{\if{html}{\out{<DNAString>}} : the sequence of the chromosome, it must be the same sequence that was use to generate the WildType metadata dataFrame (metadataWT_seqWide or metadataWT_customWindow).}
 
 \item{metadataWT}{\if{html}{\out{<dataFrame>}} : a dataframe generate by metadataWT_seqWide or metadataWT_customWindow.}
+
+\item{workdir}{\if{html}{\out{<character>}} : the working directory where the fasta files will be saved. Default is "./".}
+
+\item{gzip}{\if{html}{\out{<logical>}} : if TRUE, the fasta files will be saved in gzip format. Default is TRUE.}
 }
 \value{
 \if{html}{\out{<message>}} : a message indicating the number of fasta files saved and the output directory.
