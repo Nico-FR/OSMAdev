@@ -7,6 +7,7 @@
 #' @param df_prediction.path The full path of the Orca matrix (handles .gz extension). Data frame without header which contains orca predictions, i.e. log(Obseved/Expected).
 #' @param scale Size of the scale (i.e. window) of the predictions in base pair (i.e. 32Mb, 16Mb, 8Mb, 4Mb, 2Mb and 1Mb).
 #' @param mpos The coordinate to zoom into for multiscale prediction. By default mpos is the center of the 32Mb sequence provided (i.e. start + 16Mb).
+#' @param wpos The coordinate of the center position of the sequence, which is start position + 16000000 or + 5000000 for 32M and 1M model respectively. If NULL, wpos = model / 2.
 #' @param chromsize Chromosome size in base pair of the related chromosome.
 #' @param output Character: Default is "OE" to return observed / expected counts. "Obs" to return observed counts.
 #' @param df_normmats.path Optional. Background distance-based expected balanced contact matrices (handles .gz extension). Only needed to return observed interaction counts.
@@ -23,18 +24,23 @@
 #' @export
 #'
 #'
-orca2matrix <- function(df_prediction.path, sep = "\t", mpos, scale, chromsize, output = "OE", df_normmats.path = NULL, model = 32e6) {
+orca2matrix <- function(df_prediction.path, sep = "\t", mpos, scale, chromsize, output = "OE", df_normmats.path = NULL, model = 32e6, wpos = NULL) {
 
   #matrix specifications
   bin.width = scale / 250
   nbins = ifelse(chromsize %/% bin.width == chromsize / bin.width, chromsize %/% bin.width, chromsize %/% bin.width + 1)  #nb bins of the final matrix
 
-  start.tmp = ifelse(mpos - scale / 2 < 0, 0, mpos - scale / 2) # theoretical start in bp (>= 0)
+  if (is.null(wpos)) {
+    wpos = model / 2
+  }
+
+  start.seq = wpos - model / 2
+  start.tmp = ifelse(mpos - scale / 2 < start.seq, start.seq, mpos - scale / 2) # theoretical start in bp (>= 0)
 
   #shift (- 1 bin) start.tmp if model != scale
   start = ifelse(scale == model, start.tmp,
                  start.tmp - bin.width) #(start.tmp %/% (bin.width * 2) + 1) * (bin.width * 2) - (bin.width * 2))  #start.tmp %/% (bin.width * 2) * (bin.width * 2)
-  if(start < 0) {start = 0} #do not shift start.tmp if we are at the edge
+  if(start < start.seq) {start = start.seq} #do not shift start.tmp if we are at the edge
   bin_start = round(start / bin.width + 1) #bin number of the first bin of orca matrix
   bin_end = bin_start + 249 #position of the last bin
 

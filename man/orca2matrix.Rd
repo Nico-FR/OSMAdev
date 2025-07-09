@@ -12,7 +12,8 @@ orca2matrix(
   chromsize,
   output = "OE",
   df_normmats.path = NULL,
-  model = 3.2e+07
+  model = 3.2e+07,
+  wpos = NULL
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ orca2matrix(
 \item{df_normmats.path}{Optional. Background distance-based expected balanced contact matrices (handles .gz extension). Only needed to return observed interaction counts.}
 
 \item{model}{orca prediction model (32e6 or 1e6). Default is 32e6.}
+
+\item{wpos}{The coordinate of the center position of the sequence, which is start position + 16000000 or + 5000000 for 32M and 1M model respectively. If NULL, wpos = model / 2.}
 }
 \value{
 A \code{Matrix} class object: upper triangular and sparse Matrix

@@ -7,7 +7,7 @@
 delMAT(matrix, bin.width, start, stop, limits = "nearest")
 }
 \arguments{
-\item{matrix}{DNA input as DNAstring object (e.g chromosome sequence).}
+\item{matrix}{interaction matrix for only one chromosome as \code{dgCMatrix} or \code{matrix} object.}
 
 \item{bin.width}{bin width of the matrix.}
 
