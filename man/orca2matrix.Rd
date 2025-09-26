@@ -12,8 +12,9 @@ orca2matrix(
   chromsize,
   output = "OE",
   df_normmats.path = NULL,
-  model = 3.2e+07,
-  wpos = NULL
+  model = 32000000,
+  wpos = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ orca2matrix(
 \item{model}{orca prediction model (32e6 or 1e6). Default is 32e6.}
 
 \item{wpos}{The coordinate of the center position of the sequence, which is start position + 16000000 or + 5000000 for 32M and 1M model respectively. If NULL, wpos = model / 2.}
+
+\item{verbose}{Logical. If TRUE, display information about the created matrix.}
 }
 \value{
 A \code{Matrix} class object: upper triangular and sparse Matrix

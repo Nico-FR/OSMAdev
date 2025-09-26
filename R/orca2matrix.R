@@ -13,6 +13,7 @@
 #' @param df_normmats.path Optional. Background distance-based expected balanced contact matrices (handles .gz extension). Only needed to return observed interaction counts.
 #' @param sep separator between matrix field (df_prediction.path or df_normmats.path), default is tabulation.
 #' @param model orca prediction model (32e6 or 1e6). Default is 32e6.
+#' @param verbose Logical. If TRUE, display information about the created matrix.
 #'
 #' @return A `Matrix` class object: upper triangular and sparse Matrix
 #'
@@ -24,7 +25,7 @@
 #' @export
 #'
 #'
-orca2matrix <- function(df_prediction.path, sep = "\t", mpos, scale, chromsize, output = "OE", df_normmats.path = NULL, model = 32e6, wpos = NULL) {
+orca2matrix <- function(df_prediction.path, sep = "\t", mpos, scale, chromsize, output = "OE", df_normmats.path = NULL, model = 32e6, wpos = NULL, verbose = TRUE) {
 
   #matrix specifications
   bin.width = scale / 250
@@ -44,14 +45,15 @@ orca2matrix <- function(df_prediction.path, sep = "\t", mpos, scale, chromsize, 
   bin_start = round(start / bin.width + 1) #bin number of the first bin of orca matrix
   bin_end = bin_start + 249 #position of the last bin
 
+  if (verbose) {
+    if (start / bin.width != start %/% bin.width) {
+      message("Start/stop (ie ", start / 1e6, "Mb/", (start + scale)/1e6, "Mb) are not a multple of bin.width, rounded to ",
+              (bin_start - 1) * bin.width/1e6, "Mb/", bin_end * bin.width / 1e6, "Mb.")
+    }
 
-  if (start / bin.width != start %/% bin.width) {
-    message("Start/stop (ie ", start / 1e6, "Mb/", (start + scale)/1e6, "Mb) are not a multple of bin.width, rounded to ",
-            (bin_start - 1) * bin.width/1e6, "Mb/", bin_end * bin.width / 1e6, "Mb.")
+    message("Creating matrix of ", nbins, "x", nbins, " bins with ", output, " counts of bins ", bin_start, " to ", bin_end,
+            " at ", bin.width / 1e3, "kb resolution (i.e. from ", (bin_start - 1) * bin.width/1e6, "Mb to ", bin_end * bin.width / 1e6, "Mb).")
   }
-
-  message("Creating matrix of ", nbins, "x", nbins, " bins with ", output, " counts of bins ", bin_start, " to ", bin_end,
-          " at ", bin.width / 1e3, "kb resolution (i.e. from ", (bin_start - 1) * bin.width/1e6, "Mb to ", bin_end * bin.width / 1e6, "Mb).")
 
   #create empty matrix
   mat = Matrix::Matrix(0, nrow = nbins, ncol = nbins, sparse = TRUE)
