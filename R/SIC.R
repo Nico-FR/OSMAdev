@@ -1,4 +1,4 @@
-#' @title Structural impact score between 2 matrices
+#' @title Structural impact score between 2 matrices area
 #'
 #' @description Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between 2 matrices.
 #' Fold change can be compute:
@@ -80,9 +80,13 @@ SIC <- function(mutated.mat, wildtype.mat, bin.width, vp.start, vp.stop = NULL, 
   MT <- MT[(vp.start - l.start + 1):(vp.stop - l.start + 1),]
   WT <- WT[(vp.start - l.start + 1):(vp.stop - l.start + 1),]
 
+  #remove 0
+  MT[MT == 0] <- NA
+  WT[WT == 0] <- NA
+
   # Calculate SIC
-  diff = MT - WT
-  SIC <- diff %>% abs %>% mean(., na.rm = TRUE)
+  fold_change <- MT / WT
+  SIC <- fold_change |> log2() |> abs() |> mean(na.rm = TRUE)
 
   return(SIC)
 

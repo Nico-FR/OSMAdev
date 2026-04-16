@@ -1,14 +1,12 @@
-#' @title Structural impact score between 2 matrices
+#' @title Structural impact score (bin wise)  between 2 matrices
 #'
-#' @description Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between 2 matrices.
+#' @description Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between each bin of 2 matrices.
 #' Fold change is computed for each bin of the matrices provided
 #'
-#' @param mutated.mat,wildtype.mat mutated (query) or wildtype (control, subject) matrices as `dgCMatrix` or `matrix` object for only one chromosome.
-#' @param bin.width Bin width of the matrix in base pair.
-#' @param vp.start Start of the view point in base pair.
-#' @param vp.stop Stop/end of the view point in base pair. Default is NULL to only use the bin where vp.start is located (ie: vp.stop = vp.start + bin.width).
-#' @param start,stop Area in bp of the chromosome to compute impact score. Default is NULL to use the entire chromosome (i.e. entire matrix).
-#' @param verbose if TRUE, show information when view point does not match a bin annotations.
+#' @details The function takes as input 2 matrices (mutated and wildtype) and computes the average absolute log fold change between each bins.
+#'
+#'
+#' @param mat1,mat2 input matrices as `dgCMatrix` or `matrix` object for only one chromosome.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -19,34 +17,40 @@
 #' @examples
 #' # to do
 #'
-SIC <- function(mutated.mat, wildtype.mat, bin.width, vp.start, vp.stop = NULL, start = NULL, stop = NULL, verbose = TRUE) {
+SIC <- function(mat1, mat2) {
 
   . <- NULL
 
   #sanity check
-  if(!inherits(mutated.mat, c("Matrix", "matrix"))) {
+  if(!inherits(mat1, c("Matrix", "matrix"))) {
     stop("mutated matrix is not a matrix or Matrix object")}
-  if(!inherits(wildtype.mat, c("Matrix", "matrix"))) {
+  if(!inherits(mat2, c("Matrix", "matrix"))) {
     stop("wildtype matrix is not a matrix or Matrix object")}
-  if (nrow(wildtype.mat) != nrow(mutated.mat)){
+  if (nrow(mat2) != nrow(mat1)){
     warning("matrices do not have the same size!")
   }
-  if (ncol(wildtype.mat) != ncol(mutated.mat)){
+  if (ncol(mat2) != ncol(mat1)){
     warning("matrices do not have the same size!")
   }
 
+  # make sure matrices are symmetric
+  mat1 <- as.matrix(mat1)
+  mat2 <- as.matrix(mat2)
 
+  if (!isSymmetric(mat1)) {
+    mat1[lower.tri(mat1)] <- t(mat1)[lower.tri(mat1)]
+  }
+  if (!isSymmetric(mat2)) {
+    mat2[lower.tri(mat2)] <- t(mat2)[lower.tri(mat2)]
+  }
 
-  if (!isSymmetric(mutated.mat)) {
-    mutated.mat[lower.tri(mutated.mat)] <- t(mutated.mat)[lower.tri(mutated.mat)]
-  }
-  if (!isSymmetric(wildtype.mat)) {
-    wildtype.mat[lower.tri(wildtype.mat)] <- t(wildtype.mat)[lower.tri(wildtype.mat)]
-  }
+  #remove 0
+  mat1[mat1 == 0] <- NA
+  mat2[mat2 == 0] <- NA
 
   # Calculate SIC
-  diff = mutated.mat - wildtype.mat
-  SIC <- diff %>% abs %>% Matrix::rowMeans(., na.rm = TRUE)
+  fold_change <- mat1 / mat2
+  SIC <- fold_change |> log2() |> abs() |> Matrix::rowMeans(na.rm = TRUE)
 
   return(SIC)
 
