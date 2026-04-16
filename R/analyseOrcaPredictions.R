@@ -69,7 +69,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   }
 
 
-  # Fonction 2: SIC
+  # Function 2: SIC
   fonction_SIC <- function(WT, MT) {
     if (SIC) {
       diff = MT - WT
@@ -77,7 +77,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
     } else {return(NA)}
   }
 
-  # Fonction 3: DI
+  # Function 3: DI
   fonction_DI <- function(WT, MT) {
     if (DI) {
       return(NA)
