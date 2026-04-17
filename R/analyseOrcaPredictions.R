@@ -1,10 +1,8 @@
 #' @title Calculate scores to measure mutation effects
 #'
 #' @description
-#' This function calculates scores (see details) between WT matrices and their corresponding MT matrices.
-#' It reads the prediction files from a specified directory, processes them based on the provided metadatas, and computes the scores for each mutant matrix against its corresponding wild-type matrix.
-#' The function supports both HFF and ESC models, and can handle gzipped matrix files.
-#' The function return the metadataMT with the scores added as new columns.
+#' This function calculates scores to measure the effect of mutations on chromatin structure based on WT matrices (\eqn{mat_{WT} = log{\frac{Observed}{Expected}}}) and their corresponding MT matrices (\eqn{mat_{MT} = log{\frac{Observed}{Expected}}}).
+#' It reads the prediction files from a specified directory, processes them based on the provided metadatas, and computes the scores (see details).
 #'
 #' @param predictions.dir character. The directory containing the prediction files.
 #' @param metadataWT data.frame. The metadata for the wild-type matrices.
@@ -15,10 +13,15 @@
 #' @param DI logical. If TRUE, the function calculates the DI score. Default is FALSE.
 #'
 #' @details
+#' The scores are calculated for each MT matrix against its corresponding wild-type matrix, based on the metadata provided.
 #' The function calculates the following scores:
-#' - **SIC**: The mean absolute log fold change between the MT and WT matrices.
-#' - **corr**: The Pearson correlation coefficient between the MT and WT matrices.
+#' - **SIC**: The mean absolute log fold change between the MT and WT matrices. \deqn{\text{SIC} = mean(abs(log_{2}\frac{mat_{MT}}{mat_{WT}})) = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| \log_2 \left( \frac{mat^{MT}_{i,j}}{mat^{WT}_{i,j}} \right) \right|}
+#' - **corr**: The Pearson correlation coefficient between the MT and WT matrices. \deqn{\text{corr} = corr(mat_{MT}, mat_{WT})}
 #' - **DI**: Currently not implemented, returns NA.
+#'
+#' The function also handles cases where there are multiple mutations in the same region (i.e., replicates) and adds columns to indicate which mutation has the best score (highest for corr, lowest for SIC).
+#' The results are returned as a data.frame that combines the metadata for the mutant matrices with the calculated scores.
+#' The function supports both HFF and ESC models, and can handle gzipped matrix files.
 #'
 #' @return data.frame
 #'
@@ -72,8 +75,8 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   # Function 2: SIC
   fonction_SIC <- function(WT, MT) {
     if (SIC) {
-      diff = MT - WT
-      return(diff %>% abs %>% mean(na.rm = TRUE))
+      fold_change = MT - WT
+      return(fold_change %>% log2 %>% abs %>% mean(na.rm = TRUE))
     } else {return(NA)}
   }
 
