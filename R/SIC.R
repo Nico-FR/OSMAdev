@@ -3,11 +3,11 @@
 #' @description Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between 2 matrices.
 #' Fold change can be compute:
 #'
-#' * from one bin to all bins in the matrix (using view point parameters),
+#' * from one bin to all bins in the matrix (using view point parameters) : useful to measure the impact on the interactions of a specific bin (e.g. bin containing a mutation) or bins (e.g. bins from a TAD) with all other bins in the matrix.
 #'
-#' * to one bin to all bins in the matrix (using start/stop parameters).
+#' * to one bin to all bins in the matrix (using start/stop parameters) : useful to measure the impact between the view point and a specific area of the matrices.
 #'
-#' @param mutated.mat,wildtype.mat mutated (query) or wildtype (control, subject) matrices as `dgCMatrix` or `matrix` object for only one chromosome.
+#' @param mutated.mat,wildtype.mat mutated (query) or wildtype (control, subject) matrices (observed or observed/expected matrices) as `dgCMatrix` or `matrix` object for only one chromosome.
 #' @param bin.width Bin width of the matrix in base pair.
 #' @param vp.start Start of the view point in base pair.
 #' @param vp.stop Stop/end of the view point in base pair. Default is NULL to only use the bin where vp.start is located (ie: vp.stop = vp.start + bin.width).
@@ -86,7 +86,7 @@ SIC <- function(mutated.mat, wildtype.mat, bin.width, vp.start, vp.stop = NULL, 
 
   # Calculate SIC
   fold_change <- MT / WT
-  SIC <- fold_change |> log2() |> abs() |> mean(na.rm = TRUE)
+  SIC <- fold_change |> log() |> abs() |> mean(na.rm = TRUE)
 
   return(SIC)
 

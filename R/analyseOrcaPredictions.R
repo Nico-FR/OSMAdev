@@ -15,7 +15,7 @@
 #' @details
 #' The scores are calculated for each MT matrix against its corresponding wild-type matrix, based on the metadata provided.
 #' The function calculates the following scores:
-#' - **SIC**: The mean absolute log fold change between the MT and WT matrices. \deqn{\text{SIC} = mean(abs(log_{2}\frac{mat_{MT}}{mat_{WT}})) = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| \log_2 \left( \frac{mat^{MT}_{i,j}}{mat^{WT}_{i,j}} \right) \right|}
+#' - **SIC**: The mean absolute log fold change between the MT and WT matrices. \deqn{\text{SIC} = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| \log \left( \frac{mat^{MT}_{i,j}}{mat^{WT}_{i,j}} \right) \right|}
 #' - **corr**: The Pearson correlation coefficient between the MT and WT matrices. \deqn{\text{corr} = corr(mat_{MT}, mat_{WT})}
 #' - **DI**: Currently not implemented, returns NA.
 #'
@@ -75,8 +75,8 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   # Function 2: SIC
   fonction_SIC <- function(WT, MT) {
     if (SIC) {
-      fold_change = MT - WT
-      return(fold_change %>% log2 %>% abs %>% mean(na.rm = TRUE))
+      fold_change = MT - WT # log fold change since MT and WT are already in log scale (log(Observed/Expected))
+      return(fold_change %>% abs %>% mean(na.rm = TRUE))
     } else {return(NA)}
   }
 
