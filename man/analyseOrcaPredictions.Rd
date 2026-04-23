@@ -37,15 +37,28 @@ This function calculates scores to measure the effect of mutations on chromatin 
 It reads the prediction files from a specified directory, processes them based on the provided metadatas, and computes the scores (see details).
 }
 \details{
-The scores are calculated for each MT matrix against its corresponding wild-type matrix, based on the metadata provided.
-The function calculates the following scores:
+The scores are calculated for each mutant (MT) matrix against its corresponding wild-type (WT) matrix,
+based on the provided metadata. The function handles both HFF and ESC models seamlessly.
+
 \itemize{
-\item \strong{SIC}: The mean absolute log fold change between the MT and WT matrices. \deqn{\text{SIC} = mean(abs(log_{2}\frac{mat_{MT}}{mat_{WT}})) = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| \log_2 \left( \frac{mat^{MT}_{i,j}}{mat^{WT}_{i,j}} \right) \right|}
-\item \strong{corr}: The Pearson correlation coefficient between the MT and WT matrices. \deqn{\text{corr} = corr(mat_{MT}, mat_{WT})}
-\item \strong{DI}: Currently not implemented, returns NA.
+\item \strong{SIC (Structural Impact Score):} Measures the mean absolute logarithmic fold change
+between the MT and WT matrices. Since the input matrices are assumed to be already \eqn{\log(\text{Observed} / \text{Expected})} transformed,
+the fold change is computed as the simple difference between the two matrices.
+\deqn{\text{SIC} = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
+Where \eqn{N} is the total number of valid bins in the upper triangle (\eqn{\Omega}).
+
+\item \strong{corr (Pearson Correlation):} Calculates the Pearson correlation coefficient between the upper
+triangular values of the MT and WT matrices, excluding missing values (pairwise complete observations).
+\deqn{r = \frac{\sum (M^{MT}_{i,j} - \bar{M}^{MT})(M^{WT}_{i,j} - \bar{M}^{WT})}{\sqrt{\sum (M^{MT}_{i,j} - \bar{M}^{MT})^2 \sum (M^{WT}_{i,j} - \bar{M}^{WT})^2}}}
+
+\item \strong{DI (Directionality Index / LFC Bias):} Computes the \eqn{\log_2} Fold Change of the directional
+bias between the MT and WT conditions for the specific mutated bin. It evaluates the shift in interactions
+towards the upstream (\eqn{U}) or downstream (\eqn{D}) regions.
+\deqn{\text{LFC}_{\text{bias}} = \frac{(D^{MT} - U^{MT}) - (D^{WT} - U^{WT})}{\log(2)}}
+Where \eqn{D} and \eqn{U} represent the mean interactions within a defined distance window from the mutated bin.
 }
 
-The function also handles cases where there are multiple mutations in the same region (i.e., replicates) and adds columns to indicate which mutation has the best score (highest for corr, lowest for SIC).
-The results are returned as a data.frame that combines the metadata for the mutant matrices with the calculated scores.
-The function supports both HFF and ESC models, and can handle gzipped matrix files.
+Additionally, when multiple mutations occur within the exact same genomic coordinates (e.g., replicates or overlapping segments),
+the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}) to flag the mutation
+exhibiting the strongest structural impact (lowest correlation or highest SIC) for downstream filtering.
 }

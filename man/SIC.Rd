@@ -13,8 +13,6 @@ SIC(mat1, mat2)
 \arguments{
 \item{mat1, mat2}{input matrices as \code{dgCMatrix} or \code{matrix} object for only one chromosome.}
 
-\item{mutated.mat, wildtype.mat}{mutated (query) or wildtype (control, subject) matrices as \code{dgCMatrix} or \code{matrix} object for only one chromosome.}
-
 \item{bin.width}{Bin width of the matrix in base pair.}
 
 \item{vp.start}{Start of the view point in base pair.}
@@ -24,6 +22,8 @@ SIC(mat1, mat2)
 \item{start, stop}{Area in bp of the chromosome to compute impact score. Default is NULL to use the entire chromosome (i.e. entire matrix).}
 
 \item{verbose}{if TRUE, show information when view point does not match a bin annotations.}
+
+\item{mutated.mat, wildtype.mat}{mutated (query) or wildtype (control, subject) matrices (observed or observed/expected matrices) as \code{dgCMatrix} or \code{matrix} object for only one chromosome.}
 }
 \value{
 integer
@@ -36,8 +36,8 @@ integer
 Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between 2 matrices.
 Fold change can be compute:
 \itemize{
-\item from one bin to all bins in the matrix (using view point parameters),
-\item to one bin to all bins in the matrix (using start/stop parameters).
+\item from one bin to all bins in the matrix (using view point parameters) : useful to measure the impact on the interactions of a specific bin (e.g. bin containing a mutation) or bins (e.g. bins from a TAD) with all other bins in the matrix.
+\item to one bin to all bins in the matrix (using start/stop parameters) : useful to measure the impact between the view point and a specific area of the matrices.
 }
 
 Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between each bin of 2 matrices.
@@ -46,7 +46,7 @@ Fold change is computed for each bin of the matrices provided
 Fold change is computed for each bin of the matrices provided and the absolute log2 mean fold change is returned.
 }
 \details{
-The function takes as input 2 matrices (mutated and wildtype) and computes the average absolute log fold change between each bins.
+The function takes as input 2 matrices (mutated and wildtype) and computes the average absolute log fold change between each bins (return one value for the entire matrices).
 }
 \examples{
 # to do
