@@ -34,7 +34,7 @@
 #'   Where \eqn{D} and \eqn{U} represent the mean interactions within a defined distance window from the mutated bin.
 #' }
 #'
-#' Additionally, when multiple mutations occur within the exact same genomic coordinates (e.g., replicates or overlapping segments),
+#' Additionally, when multiple mutations occur within the exact same genomic coordinates (i.e., replicates),
 #' the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}) to flag the mutation
 #' exhibiting the strongest structural impact (lowest correlation or highest SIC) for downstream filtering.
 #'
