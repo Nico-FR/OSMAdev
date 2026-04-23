@@ -23,7 +23,7 @@ genome <- BSgenome.Btaurus.UCSC.bosTau9::BSgenome.Btaurus.UCSC.bosTau9
 chr <- "chr25"
 
 # On sélectionne les 5 premiers Mb
-DNAregion <- genome[[chr]][1:5150861]
+DNAregion <- genome[[chr]][1:5000000]
 ```
 
 ## 2. Génération des métadonnées (WT et MT)
@@ -52,7 +52,7 @@ Les mutations consisteront en une randomisation de segments de 4kb (`mutated.wid
 metadata_MT <- metadataMT(
   metadataWT = metadata_WT,
   mutated.width = 4000,
-  rep = 2
+  rep = 1
 )
 
 head(metadata_MT)
@@ -71,7 +71,8 @@ writeFastaWT(
   DNAstring = DNAregion,
   metadataWT = metadata_WT,
   workdir = workdir,
-  gzip = TRUE
+  gzip = TRUE,
+  single_file = TRUE # Regroupe toutes les séquences WT en un fichier
 )
 
 # Écriture des séquences mutées (1Mb avec randomisation des 4kb centraux)
@@ -80,7 +81,8 @@ writeFastaMT(
   metadataWT = metadata_WT,
   metadataMT = metadata_MT,
   workdir = workdir,
-  gzip = TRUE
+  gzip = TRUE,
+  file_per_WT = TRUE # Regroupe les mutants de chaque fenêtre WT en un fichier
 )
 ```
 
@@ -88,7 +90,7 @@ writeFastaMT(
 
 ## 4. Prédiction Orca (Python)
 
-Les matrices de contacts 3D sont générées à l'aide d'un script Python (`orcaPredictionsV1.06.py`).
+Les matrices de contacts 3D sont générées à l'aide d'un script Python (`orcaPredictionsV1.07.py`).
 Ce script prend en entrée :
 1. Un fichier TSV listant les séquences (ici, on devra concaténer `metadata_WT` et `metadata_MT` ou les traiter séparément).
 2. Le dossier contenant les fichiers `.fa.gz` générés précédemment.
@@ -101,7 +103,7 @@ Voici un exemple d'appel bash :
 # Assurez-vous d'avoir sauvegardé vos métadonnées en TSV :
 # write.table(metadata_WT, "orca_analysis/metadata_WT.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
-python orcaPredictionsV1.06.py \
+python orcaPredictionsV1.07.py \
   orca_analysis/metadata_WT.tsv \
   orca_analysis/fasta \
   orca_analysis/predictions \
