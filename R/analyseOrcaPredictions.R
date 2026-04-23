@@ -107,7 +107,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       end_U   <- bin_mutated - 1
 
       start_D <- bin_mutated + 1
-      end_D   <- bin_mutated + distanceBin
+      end_D   <- min(ncol(WT.mat), bin_mutated + distanceBin)
 
       # Calculate mean U (Upstream / Left interactions)
       U_WT <- mean(WT.mat[start_U:end_U, bin_mutated], na.rm = TRUE)
@@ -156,7 +156,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
     if (metadataWT$model_HFF[WT_idx] == 1){
 
       # Read the WT matrix using data.table::fread (ULTRA FAST)
-      WT.mat <- data.table::fread(paste0(predictions.dir, WT.ID, "_predictions_1000000_1M_hff", ext), header = FALSE, sep = "\t") %>% as.matrix()
+      WT.mat <- data.table::fread(file.path(predictions.dir, paste0(WT.ID, "_predictions_1000000_1M_hff", ext)), header = FALSE, sep = "\t") %>% as.matrix()
 
       # ====================================================
       # corr OPTIMIZATION: Pre-calculate upper.tri once per WT matrix
@@ -181,7 +181,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         MT.ID <- MT_row$ID
 
         # Read the MT matrix using data.table::fread
-        MT.mat <- data.table::fread(paste0(predictions.dir, MT.ID, "_predictions_1000000_1M_hff", ext), header = FALSE, sep = "\t") %>% as.matrix()
+        MT.mat <- data.table::fread(file.path(predictions.dir, paste0(MT.ID, "_predictions_1000000_1M_hff", ext)), header = FALSE, sep = "\t") %>% as.matrix()
 
         list(
           corr_HFF = fonction_corr(WT_up_tri, MT.mat, mask),
@@ -206,7 +206,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   if (metadataWT$model_ESC[WT_idx] == 1){
 
     # Read the WT matrix using data.table::fread (ULTRA FAST)
-    WT.mat <- data.table::fread(paste0(predictions.dir, WT.ID, "_predictions_1000000_1M_esc", ext), header = FALSE, sep = "\t") %>% as.matrix()
+    WT.mat <- data.table::fread(file.path(predictions.dir, paste0(WT.ID, "_predictions_1000000_1M_esc", ext)), header = FALSE, sep = "\t") %>% as.matrix()
 
     # ====================================================
     # corr OPTIMIZATION: Pre-calculate upper.tri once per WT matrix
@@ -231,7 +231,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       MT.ID <- MT_row$ID
 
       # Read the MT matrix using data.table::fread
-      MT.mat <- data.table::fread(paste0(predictions.dir, MT.ID, "_predictions_1000000_1M_esc", ext), header = FALSE, sep = "\t") %>% as.matrix()
+      MT.mat <- data.table::fread(file.path(predictions.dir, paste0(MT.ID, "_predictions_1000000_1M_esc", ext)), header = FALSE, sep = "\t") %>% as.matrix()
 
       list(
         corr_ESC = fonction_corr(WT_up_tri, MT.mat, mask),

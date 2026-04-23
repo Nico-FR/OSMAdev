@@ -40,11 +40,11 @@ metadataMT = function(metadataWT, mutated.width, rep = 1){
   #metadataWT = metadat_WT ; mutated.width=4000 ; rep =1
   ####################################
 
-  metadataMT = tibble::tibble()
+  metadataMT_list = list()
 
   for(r in 1:rep){ # make the following processes as many time as rep value
-    for (i in 1:nrow(metadataWT) ){ #for each line of the WildType metadata we make all the Mutated metadata line related.
-      tmpTibble = tibble::tibble(
+    metadataMT_list[[r]] = lapply(1:nrow(metadataWT), function(i) {
+      tibble::tibble(
         chr = metadataWT$chr[i],
         start.window = metadataWT$start.window[i],
         stop.window = metadataWT$stop.window[i],
@@ -60,10 +60,8 @@ metadataMT = function(metadataWT, mutated.width, rep = 1){
         model_HFF = metadataWT$model_HFF[i],
         model_ESC = metadataWT$model_ESC[i]
       )
-      # we merge all temporary tibble
-      metadataMT = dplyr::bind_rows(metadataMT, after = tmpTibble)
-    }
-
+    }) %>% dplyr::bind_rows()
   }
+  metadataMT = dplyr::bind_rows(metadataMT_list)
   return(metadataMT %>% dplyr::arrange(start.mut))
 }

@@ -22,4 +22,5 @@ Imports:
     IRanges,
     dplyr,
     progress,
-    tibble
+    tibble,
+    data.table

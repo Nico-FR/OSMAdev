@@ -72,11 +72,9 @@ metadataWT_seqWide = function(DNAstring, DNAstring_name, window.size, model_HFF,
     model_ESC = ifelse(model_ESC, 1, 0)
   )
 
-  ## compuation of nucleotides frequences
-  freq.WT = sapply(1:nrow(metadataWT),function(i){
-    str = DNAstring[metadataWT$start.mat[i]:metadataWT$stop.mat[i]]
-    Biostrings::letterFrequency(str, letters=c("A","T","G", "C"), as.prob = TRUE)
-  }) %>% t
+  ## computation of nucleotides frequencies
+  views_WT <- Biostrings::Views(DNAstring, start = metadataWT$start.mat, end = metadataWT$stop.mat)
+  freq.WT <- Biostrings::letterFrequency(views_WT, letters=c("A","T","G", "C"), as.prob = TRUE)
 
   ## add nucleotides frequencies to the metadata tibble
   metadataWT = cbind(metadataWT, freq.WT)

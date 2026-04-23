@@ -83,7 +83,7 @@ writeFastaMT = function(DNAstring, metadataWT, metadataMT, workdir = "./", gzip 
 
       if (isTRUE(gzip)) {
         #write the fasta file
-        Biostrings::writeXStringSet(MT.fa.lst[i2], filepath = paste0(outdir, names(MT.fa.lst[i2]), ".fa.gzip"), compress = TRUE)
+        Biostrings::writeXStringSet(MT.fa.lst[i2], filepath = paste0(outdir, names(MT.fa.lst[i2]), ".fa.gz"), compress = TRUE)
       }
     }
     pb$tick()

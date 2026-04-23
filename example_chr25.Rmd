@@ -1,0 +1,136 @@
+---
+title: "Exemple de pipeline in silico pour le chromosome 25 bovin"
+author: "Exemple RMarkdown"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Introduction
+
+Ce document présente un exemple complet d'utilisation du pipeline pour le criblage *in silico* de l'impact des mutations sur l'organisation 3D de la chromatine, appliqué à un fragment de 5Mb du chromosome 25 bovin (Bos taurus).
+Le modèle utilisé, Orca, prédit la structure 3D (matrice d'interactions) à partir de fenêtres génomiques. On évalue l'impact de ces mutations en comparant la matrice d'une séquence mutée avec celle de la séquence de type sauvage (WT).
+
+## 1. Chargement des librairies et de la séquence de référence
+
+Nous allons utiliser le package de séquence de référence `BSgenome.Btaurus.UCSC.bosTau9`. Nous extrayons les 5 premiers Mégabases du chromosome 25.
+
+```{r load_data, message=FALSE, warning=FALSE}
+library(OSMAdev)
+library(Biostrings)
+
+# Récupération de la séquence de référence pour le bovin
+genome <- BSgenome.Btaurus.UCSC.bosTau9::BSgenome.Btaurus.UCSC.bosTau9
+chr <- "chr25"
+
+# On sélectionne les 5 premiers Mb
+DNAregion <- genome[[chr]][1:5000000]
+```
+
+## 2. Génération des métadonnées (WT et MT)
+
+Nous générons les métadonnées pour les matrices contrôles (WT).
+Les fenêtres d'intérêt, au sein desquelles nous réaliserons nos mutations, feront 100kb (`window.size = 100000`).
+
+```{r metadata_wt}
+# Génération des métadonnées WildType
+metadata_WT <- metadataWT_seqWide(
+  DNAstring = DNAregion,
+  DNAstring_name = chr,
+  window.size = 100000,
+  model_HFF = TRUE,
+  model_ESC = FALSE
+)
+
+head(metadata_WT)
+```
+
+Ensuite, nous générons les métadonnées pour les séquences mutées (MT).
+Les mutations consisteront en une randomisation de segments de 4kb (`mutated.width = 4000`) au sein des fenêtres de 100kb WT.
+
+```{r metadata_mt}
+# Génération des métadonnées Mutées
+metadata_MT <- metadataMT(
+  metadataWT = metadata_WT,
+  mutated.width = 4000,
+  rep = 1
+)
+
+head(metadata_MT)
+```
+
+## 3. Écriture des séquences en format FASTA
+
+Nous allons sauvegarder les séquences de 1Mb (contrôle et mutées) au format FASTA. Celles-ci seront nécessaires au script Python Orca.
+
+```{r write_fasta, eval=FALSE}
+# Définir le répertoire de travail
+workdir <- "./orca_analysis"
+
+# Écriture des séquences WT (1Mb)
+writeFastaWT(
+  DNAstring = DNAregion,
+  metadataWT = metadata_WT,
+  workdir = workdir,
+  gzip = TRUE
+)
+
+# Écriture des séquences mutées (1Mb avec randomisation des 4kb centraux)
+writeFastaMT(
+  DNAstring = DNAregion,
+  metadataWT = metadata_WT,
+  metadataMT = metadata_MT,
+  workdir = workdir,
+  gzip = TRUE
+)
+```
+
+*(Note : L'exécution ci-dessus est marquée `eval=FALSE` dans cet exemple pour ne pas créer un grand nombre de fichiers sur le disque)*.
+
+## 4. Prédiction Orca (Python)
+
+Les matrices de contacts 3D sont générées à l'aide d'un script Python (`orcaPredictionsV1.06.py`).
+Ce script prend en entrée :
+1. Un fichier TSV listant les séquences (ici, on devra concaténer `metadata_WT` et `metadata_MT` ou les traiter séparément).
+2. Le dossier contenant les fichiers `.fa.gz` générés précédemment.
+3. Le dossier de sortie des matrices.
+
+Voici un exemple d'appel bash :
+
+```bash
+# Exemple pour les séquences WT
+# Assurez-vous d'avoir sauvegardé vos métadonnées en TSV :
+# write.table(metadata_WT, "orca_analysis/metadata_WT.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+
+python orcaPredictionsV1.06.py \
+  orca_analysis/metadata_WT.tsv \
+  orca_analysis/fasta \
+  orca_analysis/predictions \
+  True \
+  True
+```
+
+Ce script exécutera le modèle `1M` (pour les fenêtres de 1Mb) en mode GPU (`True`) et sauvegardera les matrices de sorties compressées (`True`).
+
+## 5. Analyse des impacts
+
+Une fois les matrices générées (matrice WT de 250x250, et toutes les matrices mutées correspondantes), la fonction `analyseOrcaPredictions` va analyser les scores de chaque mutation pour comprendre l'impact sur l'organisation spatiale 3D locale.
+
+```{r analyze_predictions, eval=FALSE}
+# On définit le chemin vers le dossier contenant les matrices d'interactions générées
+predictions_dir <- "./orca_analysis/predictions/"
+
+# Calcul des scores (SIC, corr et/ou DI)
+mutation_scores <- analyseOrcaPredictions(
+  predictions.dir = predictions_dir,
+  metadataWT = metadata_WT,
+  metadataMT = metadata_MT,
+  matrix.gz = TRUE, # car on a demandé au script python de compresser
+  SIC = TRUE,       # Structural Impact Score (Moyenne des LFC absolus)
+  corr = TRUE,      # Corrélation de Pearson
+  DI = TRUE         # Directionality Index (biais asymétrique des interactions)
+)
+
+head(mutation_scores)
+```
+
+Le tableau `mutation_scores` contient pour chaque mutant (`MT`) sa position, l'ID correspondant, et les scores calculés qui permettent de repérer les mutations ayant le plus grand impact sur la topologie 3D par rapport au contrôle sauvage.
