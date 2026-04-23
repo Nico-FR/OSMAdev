@@ -23,7 +23,7 @@ genome <- BSgenome.Btaurus.UCSC.bosTau9::BSgenome.Btaurus.UCSC.bosTau9
 chr <- "chr25"
 
 # On sélectionne les 5 premiers Mb
-DNAregion <- genome[[chr]][1:5000000]
+DNAregion <- genome[[chr]][1:5150861]
 ```
 
 ## 2. Génération des métadonnées (WT et MT)
@@ -52,7 +52,7 @@ Les mutations consisteront en une randomisation de segments de 4kb (`mutated.wid
 metadata_MT <- metadataMT(
   metadataWT = metadata_WT,
   mutated.width = 4000,
-  rep = 1
+  rep = 2
 )
 
 head(metadata_MT)
