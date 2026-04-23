@@ -253,7 +253,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   }
 
   # Combine the results into a single data frame
-  mutation_scores = do.call(rbind, metadataMT.lst)
+  mutation_scores = dplyr::bind_rows(metadataMT.lst)
   row.names(mutation_scores) <- NULL
 
   # best scores analysis in the case of multiple mutations in the same region (i.e. rep >= 2 : multiple mutations with the same start.mut and stop.mut)
