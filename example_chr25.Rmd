@@ -103,7 +103,7 @@ Voici un exemple d'appel bash :
 # Assurez-vous d'avoir sauvegardé vos métadonnées en TSV :
 # write.table(metadata_WT, "orca_analysis/metadata_WT.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
-python orcaPredictionsV1.07.py \
+python -u orcaPredictionsV1.07.py \
   orca_analysis/metadata_WT.tsv \
   orca_analysis/fasta \
   orca_analysis/predictions \
