@@ -71,8 +71,7 @@ writeFastaWT(
   DNAstring = DNAregion,
   metadataWT = metadata_WT,
   workdir = workdir,
-  gzip = TRUE,
-  single_file = TRUE # Regroupe toutes les séquences WT en un fichier
+  gzip = TRUE
 )
 
 # Écriture des séquences mutées (1Mb avec randomisation des 4kb centraux)
@@ -81,8 +80,7 @@ writeFastaMT(
   metadataWT = metadata_WT,
   metadataMT = metadata_MT,
   workdir = workdir,
-  gzip = TRUE,
-  file_per_WT = TRUE # Regroupe les mutants de chaque fenêtre WT en un fichier
+  gzip = TRUE
 )
 ```
 
@@ -104,11 +102,11 @@ Voici un exemple d'appel bash :
 # write.table(metadata_WT, "orca_analysis/metadata_WT.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 python -u orcaPredictionsV1.07.py \
-  orca_analysis/metadata_WT.tsv \
-  orca_analysis/fasta \
-  orca_analysis/predictions \
-  True \
-  True
+  --input orca_analysis/metadata_WT.tsv \
+  --fasta_dir orca_analysis/fasta \
+  --output orca_analysis/predictions \
+  --cuda \
+  --compress
 ```
 
 Ce script exécutera le modèle `1M` (pour les fenêtres de 1Mb) en mode GPU (`True`) et sauvegardera les matrices de sorties compressées (`True`).
