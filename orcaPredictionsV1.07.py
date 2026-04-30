@@ -30,7 +30,78 @@ logging.basicConfig(
 )
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Predict 3D organization from DNA sequence using ORCA.")
+    parser = argparse.ArgumentParser(description="Predict 3D organization from DNA sequence using ORCA.", epilog="""
+# Input tsv file format:
+------------------------
+Tabulated file with header, containing as many lines as there are predictions to be made.
+Mandatory columns are:
+    ID: unique ID which must match fasta sequence file: E.g, if ID = 'ID1', sequence fasta file must be 'ID1.fa'.
+    model: 32000000 or 1000000 ORCA model (i.e., 32M or 1M respectively).
+    scale: list of prediction scales to keep.
+        For all 32M model scales, use: '32000000,16000000,8000000,4000000,2000000,1000000'.
+        For 1M model, scale must be 1000000.
+    wpos: The coordinate of the center position of the sequence,
+        which is start position + 16000000 or + 500000 for 32M and 1M model respectively.
+    mpos: The coordinate to zoom into for multiscale prediction of 32M model.
+        mpos = 16000000 (for 32M model) to zoom at the center. Not used for 1M model but mandatory.
+    model_HFF: 0 or 1 to save predictions from HFF model.
+    model_ESC: 0 or 1 to save predictions from ESC model.
+
+# Versions:
+-----------
+    1.00:   predictions with 1M and 32M Orca models on CPU mode.
+    1.02:   add GPU mode.
+    1.03:   Check columns values for ['model_HFF', 'model_ESC', 'model']
+            Bug fix: when wpos != mpos
+    1.04:   possibility to read compressed fasta files with extentions: .fa.gz and .fa.gzip (for 1M model)
+    1.05:   possibility to compress (.gz) predicted matrices (for 1M model)
+    1.06:   read and write compressed fasta and matrices respectively for 32M model
+    1.07:   add option to write log files in real time, add argparse, optimize I/O with pandas
+    Next:
+        -véridier le nom de la sequance fasta '>ID' car si elle n'existe pas il y a un bug
+        -32M: add the option of keeping only 'predictions' (i.e Obs/Exp) and/or 'normmat' (i.e Obs) matrices,
+        -add 256Mb model (?),
+        -add default parameters for missing input.tsv columns (scales, mpos, model_HFF, model_ESC...).
+
+# Examples:
+-----------
+    python orcaPredictionsV1.07.py -i input.tsv -f seq_folder -o output_folder --cuda --compress
+
+    ## CPU mode on genotoul:
+
+    srun --mem 32G --pty bash
+    module load devel/Miniconda/Miniconda3
+    module load bioinfo/Orca/88df3b5
+    /work/user/nmary/script/orcaPredictionsV1.07.py \\
+        --input /work/user/nmary/script/Datas_example/OrcaPredictions/control.tsv \\
+        --fasta_dir /work/user/nmary/script/Datas_example/OrcaPredictions/Sequences \\
+        --output ~/work/tmp
+
+    ## GPU mode on genotoul:
+
+    echo '#!/bin/bash
+    #SBATCH -p gpuq
+    #SBATCH -J orca
+    #SBATCH -o orca.out
+    #SBATCH -e orca.err
+    #SBATCH -t 00-00:50:00 # "days-hours:minutes:seconds"
+    #SBATCH --gres=gpu:A100_2g.20gb:1
+    #SBATCH --mem=32G
+
+    #Load modules
+    #Need Miniconda
+    module load devel/Miniconda/Miniconda3
+    module load bioinfo/Orca/88df3b5
+
+    /work/user/nmary/script/orcaPredictionsV1.07.py \\
+        --input /work/user/nmary/script/Datas_example/OrcaPredictions/control.tsv \\
+        --fasta_dir /work/user/nmary/script/Datas_example/OrcaPredictions/Sequences \\
+        --output ~/work/tmpGPU \\
+        --cuda' > orca.sh
+
+    chmod u+x orca.sh
+    sbatch orca.sh
+""", formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("--input", "-i", type=str, required=True,
                         help="Tab-delimited file with prediction parameters (input TSV file).")
