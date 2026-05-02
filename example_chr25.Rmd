@@ -88,7 +88,7 @@ writeFastaMT(
 
 ## 4. Prédiction Orca (Python)
 
-Les matrices de contacts 3D sont générées à l'aide d'un script Python (`orcaPredictionsV1.06.py`).
+Les matrices de contacts 3D sont générées à l'aide d'un script Python (`orcaPredictionsV1.07.py`).
 Ce script prend en entrée :
 1. Un fichier TSV listant les séquences (ici, on devra concaténer `metadata_WT` et `metadata_MT` ou les traiter séparément).
 2. Le dossier contenant les fichiers `.fa.gz` générés précédemment.
@@ -101,12 +101,12 @@ Voici un exemple d'appel bash :
 # Assurez-vous d'avoir sauvegardé vos métadonnées en TSV :
 # write.table(metadata_WT, "orca_analysis/metadata_WT.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
-python orcaPredictionsV1.06.py \
-  orca_analysis/metadata_WT.tsv \
-  orca_analysis/fasta \
-  orca_analysis/predictions \
-  True \
-  True
+python -u orcaPredictionsV1.07.py \
+  --input orca_analysis/metadata_WT.tsv \
+  --fasta_dir orca_analysis/fasta \
+  --output orca_analysis/predictions \
+  --cuda \
+  --compress
 ```
 
 Ce script exécutera le modèle `1M` (pour les fenêtres de 1Mb) en mode GPU (`True`) et sauvegardera les matrices de sorties compressées (`True`).
