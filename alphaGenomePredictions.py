@@ -185,10 +185,7 @@ def process_predictions(input_tsv_df, seq_dir, output_dir, compressed_matrix):
             logging.error(f"Sequence length ({seq_len}) is smaller than AlphaGenome's required size ({target_len}) for {row['ID']}.")
             exit(1)
 
-        # If sequence is larger, we take the center piece to mimic Orca behavior
-        start_idx = (seq_len - target_len) // 2
-        end_idx = start_idx + target_len
-        sequence = sequence_full[start_idx:end_idx].upper()
+        sequence = sequence_full.upper()
 
         start_pos = int(row['start.mat'])
         end_pos = int(row['stop.mat'])
