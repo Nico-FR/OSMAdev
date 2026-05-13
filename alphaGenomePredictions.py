@@ -39,9 +39,9 @@ Tabulated file with header, containing as many lines as there are predictions to
 Mandatory columns are:
     ID: unique ID which must match fasta sequence file: E.g, if ID = 'ID1', sequence fasta file must be 'ID1.fa'.
     model: 1000000 (AlphaGenome handles 1MB inputs natively).
-    scale: 1000000.
-    wpos: The coordinate of the center position of the sequence.
-    mpos: Ignored for AlphaGenome, but mandatory for compatibility.
+    scale: 1048576.
+    start.mat: The start coordinate of the 1048576 bp sequence.
+    stop.mat: The stop coordinate of the 1048576 bp sequence.
     model_HFF: 0 or 1 to save predictions from HFF model ('EFO:0001196' - Human foreskin fibroblast).
     model_ESC: 0 or 1 to save predictions from ESC model ('EFO:0003042' - H1 human embryonic stem cell line).
 
@@ -80,7 +80,7 @@ def validate_inputs(args):
     if not os.path.isdir(output_folder):
         os.makedirs(output_folder, exist_ok=True)
 
-    required_columns = {'ID', 'model', 'scale', 'wpos', 'mpos', 'model_HFF', 'model_ESC'}
+    required_columns = {'ID', 'model', 'scale', 'start.mat', 'stop.mat', 'model_HFF', 'model_ESC'}
     try:
         df = pd.read_csv(input_tsv, sep='\t')
     except Exception as e:
@@ -99,10 +99,10 @@ def validate_inputs(args):
             exit(1)
 
     # Ensure all models are 1MB
-    invalid_rows = df[~df['model'].isin([1000000])]
+    invalid_rows = df[~df['model'].isin([1048576, 1000000])]
     if not invalid_rows.empty:
         logging.warning(f"AlphaGenome expects 1MB (1000000) model lengths. Found other values for IDs: {', '.join(map(str, invalid_rows['ID'].tolist()))}. Forcing 1MB.")
-        df['model'] = 1000000
+        df['model'] = 1048576
 
     return df, seq_folder, output_folder
 
@@ -150,18 +150,16 @@ def export_matrix_fast(matrix, filepath, compressed):
 
 
 def export1M_matrix_parameters(row, CellModelStr, matrix, compressed_matrix, output_dir):
-    suffix = str(row['ID']) + f'_predictions_1000000_1M_{CellModelStr}.tsv'
+    suffix = str(row['ID']) + f'_predictions_1048576_{CellModelStr}.tsv'
     pred_file_path = os.path.join(output_dir, suffix)
 
     export_matrix_fast(matrix, pred_file_path, compressed_matrix)
 
     param_dict = {
-      'ID': [str(row['ID']) + '_predictions_1000000'],
-      'start': [row['wpos'] - 500000],
-      'end': [row['wpos'] + 500000],
-      'bin_width': [4000.0], # Assuming same bin width as Orca for compatibility downstream
-      'mpos': [row['mpos']],
-      'wpos': [row['wpos']],
+      'ID': [str(row['ID']) + '_predictions_1048576'],
+      'start': [row['start.mat']],
+      'end': [row['stop.mat']],
+      'bin_width': [2048.0],
       'model': [row['model']]
     }
     path_bed = os.path.join(output_dir, f"{row['ID']}.bed")
@@ -192,8 +190,8 @@ def process_predictions(input_tsv_df, seq_dir, output_dir, compressed_matrix):
         end_idx = start_idx + target_len
         sequence = sequence_full[start_idx:end_idx].upper()
 
-        start_pos = row['wpos'] - (target_len // 2)
-        end_pos = start_pos + target_len
+        start_pos = int(row['start.mat'])
+        end_pos = int(row['stop.mat'])
 
         # Create Interval
         interval = Interval(chromosome=str(row['ID']), start=start_pos, end=end_pos)
