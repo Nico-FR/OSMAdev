@@ -11,7 +11,7 @@ analyseOrcaPredictions(
   matrix.gz = FALSE,
   SIC = TRUE,
   corr = FALSE,
-  DI = FALSE
+  localSIC = FALSE
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ analyseOrcaPredictions(
 
 \item{corr}{logical. If TRUE, the function calculates the correlation score. Default is FALSE.}
 
-\item{DI}{logical. If TRUE, the function calculates the DI score. Default is FALSE.}
+\item{localSIC}{logical. If TRUE, the function calculates the local SIC score (lSIC). Default is FALSE.}
 }
 \value{
 data.frame
@@ -51,14 +51,13 @@ Where \eqn{N} is the total number of valid bins in the upper triangle (\eqn{\Ome
 triangular values of the MT and WT matrices, excluding missing values (pairwise complete observations).
 \deqn{r = \frac{\sum (M^{MT}_{i,j} - \bar{M}^{MT})(M^{WT}_{i,j} - \bar{M}^{WT})}{\sqrt{\sum (M^{MT}_{i,j} - \bar{M}^{MT})^2 \sum (M^{WT}_{i,j} - \bar{M}^{WT})^2}}}
 
-\item \strong{DI (Directionality Index / LFC Bias):} Computes the \eqn{\log_2} Fold Change of the directional
-bias between the MT and WT conditions for the specific mutated bin. It evaluates the shift in interactions
-towards the upstream (\eqn{U}) or downstream (\eqn{D}) regions.
-\deqn{\text{LFC}_{\text{bias}} = \frac{(D^{MT} - U^{MT}) - (D^{WT} - U^{WT})}{\log(2)}}
-Where \eqn{D} and \eqn{U} represent the mean interactions within a defined distance window from the mutated bin.
+\item \strong{lSIC (local Structural Impact Score):} Measures the mean absolute logarithmic fold change
+between the MT and WT matrices for the mutated bin and its adjacent neighbors (+/- 1 bin).
+It evaluates the impact within a defined distance window, excluding the diagonal.
+\deqn{\text{lSIC} = \frac{1}{N} \sum_{(i,j) \in \Omega_{local}} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
 }
 
 Additionally, when multiple mutations occur within the exact same genomic coordinates (e.g., replicates or overlapping segments),
-the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}) to flag the mutation
-exhibiting the strongest structural impact (lowest correlation or highest SIC) for downstream filtering.
+the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}, \code{min_lSIC_HFF}) to flag the mutation
+exhibiting the strongest (or weakest) structural impact for downstream filtering.
 }

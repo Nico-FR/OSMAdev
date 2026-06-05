@@ -10,7 +10,7 @@
 #' @param matrix.gz logical. If TRUE, the function expects gzipped matrix files. Default is FALSE.
 #' @param SIC logical. If TRUE, the function calculates the SIC score. Default is TRUE.
 #' @param corr logical. If TRUE, the function calculates the correlation score. Default is FALSE.
-#' @param DI logical. If TRUE, the function calculates the DI score. Default is FALSE.
+#' @param localSIC logical. If TRUE, the function calculates the local SIC score (lSIC). Default is FALSE.
 #'
 #' @details
 #' The scores are calculated for each mutant (MT) matrix against its corresponding wild-type (WT) matrix,
@@ -27,16 +27,15 @@
 #'   triangular values of the MT and WT matrices, excluding missing values (pairwise complete observations).
 #'   \deqn{r = \frac{\sum (M^{MT}_{i,j} - \bar{M}^{MT})(M^{WT}_{i,j} - \bar{M}^{WT})}{\sqrt{\sum (M^{MT}_{i,j} - \bar{M}^{MT})^2 \sum (M^{WT}_{i,j} - \bar{M}^{WT})^2}}}
 #'
-#'   \item \strong{DI (Directionality Index / LFC Bias):} Computes the \eqn{\log_2} Fold Change of the directional
-#'   bias between the MT and WT conditions for the specific mutated bin. It evaluates the shift in interactions
-#'   towards the upstream (\eqn{U}) or downstream (\eqn{D}) regions.
-#'   \deqn{\text{LFC}_{\text{bias}} = \frac{(D^{MT} - U^{MT}) - (D^{WT} - U^{WT})}{\log(2)}}
-#'   Where \eqn{D} and \eqn{U} represent the mean interactions within a defined distance window from the mutated bin.
+#'   \item \strong{lSIC (local Structural Impact Score):} Measures the mean absolute logarithmic fold change
+#'   between the MT and WT matrices for the mutated bin and its adjacent neighbors (+/- 1 bin).
+#'   It evaluates the impact within a defined distance window, excluding the diagonal.
+#'   \deqn{\text{lSIC} = \frac{1}{N} \sum_{(i,j) \in \Omega_{local}} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
 #' }
 #'
 #' Additionally, when multiple mutations occur within the exact same genomic coordinates (i.e., replicates),
-#' the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}) to flag the mutation
-#' exhibiting the strongest structural impact (lowest correlation or highest SIC) for downstream filtering.
+#' the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}, \code{min_lSIC_HFF}) to flag the mutation
+#' exhibiting the strongest (or weakest) structural impact for downstream filtering.
 #'
 #' @return data.frame
 #'
@@ -48,20 +47,20 @@
 #'
 #' @export
 
-analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matrix.gz = FALSE, SIC = TRUE, corr = FALSE, DI = FALSE){
+analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matrix.gz = FALSE, SIC = TRUE, corr = FALSE, localSIC = FALSE){
 
   ##############################
   # testing parameters
   #metadataWT = read.table("~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/metadataWT.tsv", header = TRUE, sep = "\t"); metadataMT = read.table("~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/metadataMT.tsv", header = TRUE, sep = "\t")
-  #predictions.dir = "~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/Predictions/" ; matrix.gz = TRUE ; SIC = TRUE ; corr = FALSE ; DI = FALSE
+  #predictions.dir = "~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/Predictions/" ; matrix.gz = TRUE ; SIC = TRUE ; corr = FALSE ; localSIC = FALSE
   ##############################
 
   if (unique(metadataMT$chr) %>% length != 1){
     stop("metadataMT must contain only one chromosome")
   }
 
-  if (!SIC && !corr && !DI){
-    stop("At least one of the parameters SIC, corr or DI must be TRUE")
+  if (!SIC && !corr && !localSIC){
+    stop("At least one of the parameters SIC, corr or localSIC must be TRUE")
   }
 
   #check prediction files
@@ -93,38 +92,37 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
     } else {return(NA)}
   }
 
-  # Function 3: DI (LFC DI)
-  fonction_DI <- function(WT.mat, MT.mat, start_mut, stop_mut, start_mat, bin.width, distanceBin) {
-    if (DI) {
+  # Function 3: lSIC (local SIC)
+  fonction_lSIC <- function(WT.mat, MT.mat, start_mut, stop_mut, start_mat, bin.width, distanceBin) {
+    if (localSIC) {
 
       # compute position of the mutated bin
       bin_mutated <- floor(
         ((start_mut + stop_mut) / 2 - start_mat) / bin.width
       ) + 1
 
-      # Define Upstream and Downstream limits
-      start_U <- bin_mutated - distanceBin
-      end_U   <- bin_mutated - 1
+      # Define the range of bins (+/- 1)
+      bins_target <- (bin_mutated - 1):(bin_mutated + 1)
+      # Ensure bins are within matrix bounds
+      bins_target <- bins_target[bins_target >= 1 & bins_target <= ncol(WT.mat)]
 
-      start_D <- bin_mutated + 1
-      end_D   <- min(ncol(WT.mat), bin_mutated + distanceBin)
+      # Calculate absolute differences
+      diff_mat <- abs(MT.mat - WT.mat)
 
-      # Calculate mean U (Upstream / Left interactions)
-      U_WT <- mean(WT.mat[start_U:end_U, bin_mutated], na.rm = TRUE)
-      U_MT <- mean(MT.mat[start_U:end_U, bin_mutated], na.rm = TRUE)
+      # For each target bin, collect its interactions within distanceBin
+      values <- c()
+      for (b in bins_target) {
+        start_idx <- max(1, b - distanceBin)
+        end_idx <- min(ncol(WT.mat), b + distanceBin)
 
-      # Calculate mean D (Downstream / Right interactions)
-      D_WT <- mean(WT.mat[bin_mutated, start_D:end_D], na.rm = TRUE)
-      D_MT <- mean(MT.mat[bin_mutated, start_D:end_D], na.rm = TRUE)
+        # Get indices in this row, excluding the diagonal (row == col)
+        indices <- start_idx:end_idx
+        indices <- indices[indices != b]
 
-      # Calculate Bias (Downstream - Upstream) = ln(Downstream / Upstream)
-      Bias_WT <- D_WT - U_WT
-      Bias_MT <- D_MT - U_MT
+        values <- c(values, diff_mat[b, indices])
+      }
 
-      # Calculate LFC Bias
-      LFC_bias <- (Bias_MT - Bias_WT) / log(2)
-
-      return(LFC_bias)
+      return(mean(values, na.rm = TRUE))
     } else {
       return(NA)
     }
@@ -165,12 +163,12 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         WT_up_tri <- WT.mat[mask]
       }
 
-      # DI OPTIMIZATION: Pre-calculation of the DI parameters for this WT matrix
-      if (DI) {
+      # lSIC OPTIMIZATION: Pre-calculation of the lSIC parameters for this WT matrix
+      if (localSIC) {
         bin.width <- metadataWT$scale[WT_idx] / 250
         start_mat <- metadataWT$start.mat[WT_idx]
-        DI_distance <- WT_window - start_mat
-        distanceBin <- floor(DI_distance / bin.width)
+        lSIC_distance <- WT_window - start_mat
+        distanceBin <- floor(lSIC_distance / bin.width)
       }
       # ====================================================
 
@@ -186,13 +184,13 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         list(
           corr_HFF = fonction_corr(WT_up_tri, MT.mat, mask),
           SIC_HFF  = fonction_SIC(WT.mat, MT.mat),
-          DI_HFF   = fonction_DI(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
+          lSIC_HFF = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
         )
       }) %>% dplyr::bind_rows()
 
       #select the results based on the parameters
       results_hff <- results_hff %>%
-        dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
+        dplyr::select(c(if(corr){1}, if(SIC){2}, if(localSIC){3}))
 
       # Combine the results into the metadataMT list
       metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_hff)
@@ -215,12 +213,12 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       WT_up_tri <- WT.mat[mask]
     }
 
-    # DI OPTIMIZATION: Pre-calculation of the DI parameters for this WT matrix
-    if (DI) {
+    # lSIC OPTIMIZATION: Pre-calculation of the lSIC parameters for this WT matrix
+    if (localSIC) {
       bin.width <- metadataWT$scale[WT_idx] / 250
       start_mat <- metadataWT$start.mat[WT_idx]
-      DI_distance <- WT_window - start_mat
-      distanceBin <- floor(DI_distance / bin.width)
+      lSIC_distance <- WT_window - start_mat
+      distanceBin <- floor(lSIC_distance / bin.width)
     }
     # ====================================================
 
@@ -236,13 +234,13 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       list(
         corr_ESC = fonction_corr(WT_up_tri, MT.mat, mask),
         SIC_ESC  = fonction_SIC(WT.mat, MT.mat),
-        DI_ESC   = fonction_DI(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
+        lSIC_ESC = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
       )
     }) %>% dplyr::bind_rows()
 
     #select the results based on the parameters
     results_esc <- results_esc %>%
-      dplyr::select(c(if(corr){1}, if(SIC){2}, if(DI){3}))
+      dplyr::select(c(if(corr){1}, if(SIC){2}, if(localSIC){3}))
 
     # Combine the results into the metadataMT list
     metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_esc)
@@ -281,6 +279,18 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       mutation_scores <- mutation_scores %>%
         dplyr::group_by(start.mut, stop.mut) %>%
         dplyr::mutate(min_SIC_ESC = SIC_ESC == min(SIC_ESC, na.rm = TRUE)) %>%
+        dplyr::ungroup()
+    }
+    if ("lSIC_HFF" %in% colnames(mutation_scores)) {
+      mutation_scores <- mutation_scores %>%
+        dplyr::group_by(start.mut, stop.mut) %>%
+        dplyr::mutate(min_lSIC_HFF = lSIC_HFF == min(lSIC_HFF, na.rm = TRUE)) %>%
+        dplyr::ungroup()
+    }
+    if ("lSIC_ESC" %in% colnames(mutation_scores)) {
+      mutation_scores <- mutation_scores %>%
+        dplyr::group_by(start.mut, stop.mut) %>%
+        dplyr::mutate(min_lSIC_ESC = lSIC_ESC == min(lSIC_ESC, na.rm = TRUE)) %>%
         dplyr::ungroup()
     }
   }

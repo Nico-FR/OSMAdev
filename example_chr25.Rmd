@@ -119,7 +119,7 @@ Une fois les matrices générées (matrice WT de 250x250, et toutes les matrices
 # On définit le chemin vers le dossier contenant les matrices d'interactions générées
 predictions_dir <- "./orca_analysis/predictions/"
 
-# Calcul des scores (SIC, corr et/ou DI)
+# Calcul des scores (SIC, corr et/ou lSIC)
 mutation_scores <- analyseOrcaPredictions(
   predictions.dir = predictions_dir,
   metadataWT = metadata_WT,
@@ -127,7 +127,7 @@ mutation_scores <- analyseOrcaPredictions(
   matrix.gz = TRUE, # car on a demandé au script python de compresser
   SIC = TRUE,       # Structural Impact Score (Moyenne des LFC absolus)
   corr = TRUE,      # Corrélation de Pearson
-  DI = TRUE         # Directionality Index (biais asymétrique des interactions)
+  localSIC = TRUE   # local Structural Impact Score (SIC sur le bin muté et ses voisins)
 )
 
 head(mutation_scores)
