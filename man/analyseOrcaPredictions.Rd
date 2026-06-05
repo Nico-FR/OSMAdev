@@ -11,7 +11,7 @@ analyseOrcaPredictions(
   matrix.gz = FALSE,
   gSIC = TRUE,
   corr = FALSE,
-  localSIC = FALSE
+  lSIC = FALSE
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ analyseOrcaPredictions(
 
 \item{corr}{logical. If TRUE, the function calculates the correlation score. Default is FALSE.}
 
-\item{localSIC}{logical. If TRUE, the function calculates the local SIC score (lSIC). Default is FALSE.}
+\item{lSIC}{logical. If TRUE, the function calculates the local SIC score (lSIC). Default is FALSE.}
 }
 \value{
 data.frame

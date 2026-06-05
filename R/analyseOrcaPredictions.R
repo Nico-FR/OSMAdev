@@ -10,7 +10,7 @@
 #' @param matrix.gz logical. If TRUE, the function expects gzipped matrix files. Default is FALSE.
 #' @param gSIC logical. If TRUE, the function calculates the gSIC score (global SIC). Default is TRUE.
 #' @param corr logical. If TRUE, the function calculates the correlation score. Default is FALSE.
-#' @param localSIC logical. If TRUE, the function calculates the local SIC score (lSIC). Default is FALSE.
+#' @param lSIC logical. If TRUE, the function calculates the local SIC score (lSIC). Default is FALSE.
 #'
 #' @details
 #' The scores are calculated for each mutant (MT) matrix against its corresponding wild-type (WT) matrix,
@@ -47,20 +47,20 @@
 #'
 #' @export
 
-analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matrix.gz = FALSE, gSIC = TRUE, corr = FALSE, localSIC = FALSE){
+analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matrix.gz = FALSE, gSIC = TRUE, corr = FALSE, lSIC = FALSE){
 
   ##############################
   # testing parameters
   #metadataWT = read.table("~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/metadataWT.tsv", header = TRUE, sep = "\t"); metadataMT = read.table("~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/metadataMT.tsv", header = TRUE, sep = "\t")
-  #predictions.dir = "~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/Predictions/" ; matrix.gz = TRUE ; gSIC = TRUE ; corr = TRUE ; localSIC = TRUE
+  #predictions.dir = "~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/Predictions/" ; matrix.gz = TRUE ; gSIC = TRUE ; corr = TRUE ; lSIC = TRUE
   ##############################
 
   if (unique(metadataMT$chr) %>% length != 1){
     stop("metadataMT must contain only one chromosome")
   }
 
-  if (!gSIC && !corr && !localSIC){
-    stop("At least one of the parameters gSIC, corr or localSIC must be TRUE")
+  if (!gSIC && !corr && !lSIC){
+    stop("At least one of the parameters gSIC, corr or lSIC must be TRUE")
   }
 
   #check prediction files
@@ -94,7 +94,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
 
   # Function 3: lSIC (local SIC)
   fonction_lSIC <- function(WT.mat, MT.mat, start_mut, stop_mut, start_mat, bin.width) {
-    if (localSIC) {
+    if (lSIC) {
 
       # compute position of the mutated bin
       bin_mutated <- floor(
@@ -147,7 +147,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       }
 
       # lSIC OPTIMIZATION: Pre-calculation of the lSIC parameters for this WT matrix
-      if (localSIC) {
+      if (lSIC) {
         bin.width <- metadataWT$scale[WT_idx] / 250
         start_mat <- metadataWT$start.mat[WT_idx]
       }
@@ -171,7 +171,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
 
       #select the results based on the parameters
       results_hff <- results_hff %>%
-        dplyr::select(c(if(corr){1}, if(gSIC){2}, if(localSIC){3}))
+        dplyr::select(c(if(corr){1}, if(gSIC){2}, if(lSIC){3}))
 
       # Combine the results into the metadataMT list
       metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_hff)
@@ -195,7 +195,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       }
 
       # lSIC OPTIMIZATION: Pre-calculation of the lSIC parameters for this WT matrix
-      if (localSIC) {
+      if (lSIC) {
         bin.width <- metadataWT$scale[WT_idx] / 250
         start_mat <- metadataWT$start.mat[WT_idx]
       }
@@ -219,7 +219,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
 
       #select the results based on the parameters
       results_esc <- results_esc %>%
-        dplyr::select(c(if(corr){1}, if(gSIC){2}, if(localSIC){3}))
+        dplyr::select(c(if(corr){1}, if(gSIC){2}, if(lSIC){3}))
 
       # Combine the results into the metadataMT list
       metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_esc)
