@@ -5,7 +5,7 @@
 #'
 #' * from one bin to all bins in the matrix (using view point parameters) : useful to measure the impact on the interactions of a specific bin (e.g. bin containing a mutation) or bins (e.g. bins from a TAD) with all other bins in the matrix.
 #'
-#' * to one bin to all bins in the matrix (using start/stop parameters) : useful to measure the impact between the view point and a specific area of the matrices.
+#' * to a specific area of the matrix (using start/stop parameters) : useful to measure the impact between a TAD (the view point) on another TAD...
 #'
 #' @param mutated.mat,wildtype.mat mutated (query) or wildtype (control, subject) matrices (observed or observed/expected matrices) as `dgCMatrix` or `matrix` object for only one chromosome.
 #' @param bin.width Bin width of the matrix in base pair.

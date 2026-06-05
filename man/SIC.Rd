@@ -37,7 +37,7 @@ Measurement described in Zhou 2022 use to compute the average absolute log fold 
 Fold change can be compute:
 \itemize{
 \item from one bin to all bins in the matrix (using view point parameters) : useful to measure the impact on the interactions of a specific bin (e.g. bin containing a mutation) or bins (e.g. bins from a TAD) with all other bins in the matrix.
-\item to one bin to all bins in the matrix (using start/stop parameters) : useful to measure the impact between the view point and a specific area of the matrices.
+\item to a specific area of the matrix (using start/stop parameters) : useful to measure the impact between a TAD (the view point) on another TAD...
 }
 
 Measurement described in Zhou 2022 use to compute the average absolute log fold change of interactions between each bin of 2 matrices.
