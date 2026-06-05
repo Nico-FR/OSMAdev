@@ -9,7 +9,7 @@ analyseOrcaPredictions(
   metadataWT,
   metadataMT,
   matrix.gz = FALSE,
-  SIC = TRUE,
+  gSIC = TRUE,
   corr = FALSE,
   localSIC = FALSE
 )
@@ -23,7 +23,7 @@ analyseOrcaPredictions(
 
 \item{matrix.gz}{logical. If TRUE, the function expects gzipped matrix files. Default is FALSE.}
 
-\item{SIC}{logical. If TRUE, the function calculates the SIC score. Default is TRUE.}
+\item{gSIC}{logical. If TRUE, the function calculates the gSIC score (global SIC). Default is TRUE.}
 
 \item{corr}{logical. If TRUE, the function calculates the correlation score. Default is FALSE.}
 
@@ -41,10 +41,10 @@ The scores are calculated for each mutant (MT) matrix against its corresponding 
 based on the provided metadata. The function handles both HFF and ESC models seamlessly.
 
 \itemize{
-\item \strong{SIC (Structural Impact Score):} Measures the mean absolute logarithmic fold change
+\item \strong{gSIC (global Structural Impact Score):} Measures the mean absolute logarithmic fold change
 between the MT and WT matrices. Since the input matrices are assumed to be already \eqn{\log(\text{Observed} / \text{Expected})} transformed,
 the fold change is computed as the simple difference between the two matrices.
-\deqn{\text{SIC} = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
+\deqn{\text{gSIC} = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
 Where \eqn{N} is the total number of valid bins in the upper triangle (\eqn{\Omega}).
 
 \item \strong{corr (Pearson Correlation):} Calculates the Pearson correlation coefficient between the upper
@@ -58,6 +58,6 @@ It evaluates the impact within a defined distance window.
 }
 
 Additionally, when multiple mutations occur within the exact same genomic coordinates (e.g., replicates or overlapping segments),
-the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}, \code{min_lSIC_HFF}) to flag the mutation
+the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_gSIC_HFF}, \code{min_lSIC_HFF}) to flag the mutation
 exhibiting the strongest (or weakest) structural impact for downstream filtering.
 }

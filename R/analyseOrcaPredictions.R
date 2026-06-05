@@ -8,7 +8,7 @@
 #' @param metadataWT data.frame. The metadata for the wild-type matrices.
 #' @param metadataMT data.frame. The metadata for the mutant matrices.
 #' @param matrix.gz logical. If TRUE, the function expects gzipped matrix files. Default is FALSE.
-#' @param SIC logical. If TRUE, the function calculates the SIC score. Default is TRUE.
+#' @param gSIC logical. If TRUE, the function calculates the gSIC score (global SIC). Default is TRUE.
 #' @param corr logical. If TRUE, the function calculates the correlation score. Default is FALSE.
 #' @param localSIC logical. If TRUE, the function calculates the local SIC score (lSIC). Default is FALSE.
 #'
@@ -17,10 +17,10 @@
 #' based on the provided metadata. The function handles both HFF and ESC models seamlessly.
 #'
 #' \itemize{
-#'   \item \strong{SIC (Structural Impact Score):} Measures the mean absolute logarithmic fold change
+#'   \item \strong{gSIC (global Structural Impact Score):} Measures the mean absolute logarithmic fold change
 #'   between the MT and WT matrices. Since the input matrices are assumed to be already \eqn{\log(\text{Observed} / \text{Expected})} transformed,
 #'   the fold change is computed as the simple difference between the two matrices.
-#'   \deqn{\text{SIC} = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
+#'   \deqn{\text{gSIC} = \frac{1}{N} \sum_{(i,j) \in \Omega} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
 #'   Where \eqn{N} is the total number of valid bins in the upper triangle (\eqn{\Omega}).
 #'
 #'   \item \strong{corr (Pearson Correlation):} Calculates the Pearson correlation coefficient between the upper
@@ -34,7 +34,7 @@
 #' }
 #'
 #' Additionally, when multiple mutations occur within the exact same genomic coordinates (i.e., replicates),
-#' the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_SIC_HFF}, \code{min_lSIC_HFF}) to flag the mutation
+#' the function automatically appends logical columns (e.g., \code{max_corr_HFF}, \code{min_gSIC_HFF}, \code{min_lSIC_HFF}) to flag the mutation
 #' exhibiting the strongest (or weakest) structural impact for downstream filtering.
 #'
 #' @return data.frame
@@ -47,20 +47,20 @@
 #'
 #' @export
 
-analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matrix.gz = FALSE, SIC = TRUE, corr = FALSE, localSIC = FALSE){
+analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matrix.gz = FALSE, gSIC = TRUE, corr = FALSE, localSIC = FALSE){
 
   ##############################
   # testing parameters
   #metadataWT = read.table("~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/metadataWT.tsv", header = TRUE, sep = "\t"); metadataMT = read.table("~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/metadataMT.tsv", header = TRUE, sep = "\t")
-  #predictions.dir = "~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/Predictions/" ; matrix.gz = TRUE ; SIC = TRUE ; corr = FALSE ; localSIC = FALSE
+  #predictions.dir = "~/mnt/genome3D/Nicolas/inSilMut/chr1/step1/Predictions/" ; matrix.gz = TRUE ; gSIC = TRUE ; corr = FALSE ; localSIC = FALSE
   ##############################
 
   if (unique(metadataMT$chr) %>% length != 1){
     stop("metadataMT must contain only one chromosome")
   }
 
-  if (!SIC && !corr && !localSIC){
-    stop("At least one of the parameters SIC, corr or localSIC must be TRUE")
+  if (!gSIC && !corr && !localSIC){
+    stop("At least one of the parameters gSIC, corr or localSIC must be TRUE")
   }
 
   #check prediction files
@@ -85,9 +85,9 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
     } else {return(NA)}
   }
 
-  # Function 2: SIC
-  fonction_SIC <- function(WT, MT) {
-    if (SIC) {
+  # Function 2: gSIC (global SIC)
+  fonction_gSIC <- function(WT, MT) {
+    if (gSIC) {
       return(mean(abs(MT - WT), na.rm = TRUE))
     } else {return(NA)}
   }
@@ -182,14 +182,14 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
 
         list(
           corr_HFF = fonction_corr(WT_up_tri, MT.mat, mask),
-          SIC_HFF  = fonction_SIC(WT.mat, MT.mat),
+          gSIC_HFF  = fonction_gSIC(WT.mat, MT.mat),
           lSIC_HFF = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
         )
       }) %>% dplyr::bind_rows()
 
       #select the results based on the parameters
       results_hff <- results_hff %>%
-        dplyr::select(c(if(corr){1}, if(SIC){2}, if(localSIC){3}))
+        dplyr::select(c(if(corr){1}, if(gSIC){2}, if(localSIC){3}))
 
       # Combine the results into the metadataMT list
       metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_hff)
@@ -232,14 +232,14 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
 
       list(
         corr_ESC = fonction_corr(WT_up_tri, MT.mat, mask),
-        SIC_ESC  = fonction_SIC(WT.mat, MT.mat),
+        gSIC_ESC  = fonction_gSIC(WT.mat, MT.mat),
         lSIC_ESC = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
       )
     }) %>% dplyr::bind_rows()
 
     #select the results based on the parameters
     results_esc <- results_esc %>%
-      dplyr::select(c(if(corr){1}, if(SIC){2}, if(localSIC){3}))
+      dplyr::select(c(if(corr){1}, if(gSIC){2}, if(localSIC){3}))
 
     # Combine the results into the metadataMT list
     metadataMT.lst[[i]] <- cbind(metadataMT.lst[[i]], results_esc)
@@ -255,17 +255,17 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
 
   # best scores analysis in the case of multiple mutations in the same region (i.e. rep >= 2 : multiple mutations with the same start.mut and stop.mut)
   if(any(duplicated(mutation_scores$start.mut))) {#if there is replicates (same region mutated more than ones)
-    # add TRUE or FALSE to indicate the highest (SIC) or lowest (corr) score
+    # add TRUE or FALSE to indicate the highest (gSIC) or lowest (corr) score
     if ("corr_HFF" %in% colnames(mutation_scores)) {
       mutation_scores <- mutation_scores %>%
         dplyr::group_by(start.mut, stop.mut) %>%
         dplyr::mutate(max_corr_HFF = corr_HFF == max(corr_HFF, na.rm = TRUE)) %>%
         dplyr::ungroup()
     }
-    if ("SIC_HFF" %in% colnames(mutation_scores)) {
+    if ("gSIC_HFF" %in% colnames(mutation_scores)) {
       mutation_scores <- mutation_scores %>%
         dplyr::group_by(start.mut, stop.mut) %>%
-        dplyr::mutate(min_SIC_HFF = SIC_HFF == min(SIC_HFF, na.rm = TRUE)) %>%
+        dplyr::mutate(min_gSIC_HFF = gSIC_HFF == min(gSIC_HFF, na.rm = TRUE)) %>%
         dplyr::ungroup()
     }
     if ("corr_ESC" %in% colnames(mutation_scores)) {
@@ -274,10 +274,10 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         dplyr::mutate(max_corr_ESC = corr_ESC == max(corr_ESC, na.rm = TRUE)) %>%
         dplyr::ungroup()
     }
-    if ("SIC_ESC" %in% colnames(mutation_scores)) {
+    if ("gSIC_ESC" %in% colnames(mutation_scores)) {
       mutation_scores <- mutation_scores %>%
         dplyr::group_by(start.mut, stop.mut) %>%
-        dplyr::mutate(min_SIC_ESC = SIC_ESC == min(SIC_ESC, na.rm = TRUE)) %>%
+        dplyr::mutate(min_gSIC_ESC = gSIC_ESC == min(gSIC_ESC, na.rm = TRUE)) %>%
         dplyr::ungroup()
     }
     if ("lSIC_HFF" %in% colnames(mutation_scores)) {
