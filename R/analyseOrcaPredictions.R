@@ -29,7 +29,7 @@
 #'
 #'   \item \strong{lSIC (local Structural Impact Score):} Measures the mean absolute logarithmic fold change
 #'   between the MT and WT matrices for the mutated bin and its adjacent neighbors (+/- 1 bin).
-#'   It evaluates the impact within a defined distance window, excluding the diagonal.
+#'   It evaluates the impact within a defined distance window.
 #'   \deqn{\text{lSIC} = \frac{1}{N} \sum_{(i,j) \in \Omega_{local}} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
 #' }
 #'
@@ -115,9 +115,8 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         start_idx <- max(1, b - distanceBin)
         end_idx <- min(ncol(WT.mat), b + distanceBin)
 
-        # Get indices in this row, excluding the diagonal (row == col)
+        # Get indices in this row
         indices <- start_idx:end_idx
-        indices <- indices[indices != b]
 
         values <- c(values, diff_mat[b, indices])
       }
