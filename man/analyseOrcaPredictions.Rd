@@ -53,7 +53,7 @@ triangular values of the MT and WT matrices, excluding missing values (pairwise 
 
 \item \strong{lSIC (local Structural Impact Score):} Measures the mean absolute logarithmic fold change
 between the MT and WT matrices for the mutated bin and its adjacent neighbors (+/- 1 bin).
-It evaluates the impact within a defined distance window.
+It evaluates the impact on all interactions involving these bins.
 \deqn{\text{lSIC} = \frac{1}{N} \sum_{(i,j) \in \Omega_{local}} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
 }
 

@@ -29,7 +29,7 @@
 #'
 #'   \item \strong{lSIC (local Structural Impact Score):} Measures the mean absolute logarithmic fold change
 #'   between the MT and WT matrices for the mutated bin and its adjacent neighbors (+/- 1 bin).
-#'   It evaluates the impact within a defined distance window.
+#'   It evaluates the impact on all interactions involving these bins.
 #'   \deqn{\text{lSIC} = \frac{1}{N} \sum_{(i,j) \in \Omega_{local}} \left| M^{MT}_{i,j} - M^{WT}_{i,j} \right|}
 #' }
 #'
@@ -93,7 +93,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   }
 
   # Function 3: lSIC (local SIC)
-  fonction_lSIC <- function(WT.mat, MT.mat, start_mut, stop_mut, start_mat, bin.width, distanceBin) {
+  fonction_lSIC <- function(WT.mat, MT.mat, start_mut, stop_mut, start_mat, bin.width) {
     if (localSIC) {
 
       # compute position of the mutated bin
@@ -106,22 +106,8 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       # Ensure bins are within matrix bounds
       bins_target <- bins_target[bins_target >= 1 & bins_target <= ncol(WT.mat)]
 
-      # Calculate absolute differences
-      diff_mat <- abs(MT.mat - WT.mat)
-
-      # For each target bin, collect its interactions within distanceBin
-      values <- c()
-      for (b in bins_target) {
-        start_idx <- max(1, b - distanceBin)
-        end_idx <- min(ncol(WT.mat), b + distanceBin)
-
-        # Get indices in this row
-        indices <- start_idx:end_idx
-
-        values <- c(values, diff_mat[b, indices])
-      }
-
-      return(mean(values, na.rm = TRUE))
+      # Calculate lSIC as the mean absolute difference for the target bins
+      return(mean(abs(MT.mat[, bins_target] - WT.mat[, bins_target]), na.rm = TRUE))
     } else {
       return(NA)
     }
@@ -166,8 +152,6 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       if (localSIC) {
         bin.width <- metadataWT$scale[WT_idx] / 250
         start_mat <- metadataWT$start.mat[WT_idx]
-        lSIC_distance <- WT_window - start_mat
-        distanceBin <- floor(lSIC_distance / bin.width)
       }
       # ====================================================
 
@@ -183,7 +167,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
         list(
           corr_HFF = fonction_corr(WT_up_tri, MT.mat, mask),
           gSIC_HFF  = fonction_gSIC(WT.mat, MT.mat),
-          lSIC_HFF = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
+          lSIC_HFF = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width)
         )
       }) %>% dplyr::bind_rows()
 
@@ -216,8 +200,6 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
     if (localSIC) {
       bin.width <- metadataWT$scale[WT_idx] / 250
       start_mat <- metadataWT$start.mat[WT_idx]
-      lSIC_distance <- WT_window - start_mat
-      distanceBin <- floor(lSIC_distance / bin.width)
     }
     # ====================================================
 
@@ -233,7 +215,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       list(
         corr_ESC = fonction_corr(WT_up_tri, MT.mat, mask),
         gSIC_ESC  = fonction_gSIC(WT.mat, MT.mat),
-        lSIC_ESC = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width, distanceBin)
+        lSIC_ESC = fonction_lSIC(WT.mat, MT.mat, MT_row$start.mut, MT_row$stop.mut, start_mat, bin.width)
       )
     }) %>% dplyr::bind_rows()
 
