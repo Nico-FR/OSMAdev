@@ -1,8 +1,8 @@
 #' @title Mutated metadata dataframe generation
 #'
 #' @description
-#' The main goal of this function is to create MT metatdata to run Orca 1Mb predictions for all the 1Mb WT sequences.
-#' For each 1Mb WT sequences, this function return the adjacent mutated windows that will be subject to mutations.
+#' The main goal of this function is to create MT metadata to create fasta files for each mutation.
+#' For each 1Mb WT sequences, this function return all the adjacent mutation positions on the mutated window.
 #'
 #' @param metadataWT <dataFrame> : a dataframe generate by createMetadaWT
 #' @param mutated.width <numeric> : size of the adjacent mutated window
