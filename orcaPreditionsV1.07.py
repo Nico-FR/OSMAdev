@@ -13,12 +13,21 @@ import time
 import argparse
 import logging
 from Bio import SeqIO
-# Mock imports for the script to be valid standalone script structure
+# Import required libraries.
+# If they are not available, propagate ImportError with a helpful message for Genotoul users.
 try:
     from selene_sdk.sequences import Genome
     import orca_predict
-except ImportError:
-    pass
+except ImportError as e:
+    sys.stderr.write(
+        "Error: Missing required packages ('selene_sdk' or 'orca_predict').\n"
+        "To run this script on Genotoul, make sure to load the required modules:\n"
+        "    module load devel/Miniconda/Miniconda3\n"
+        "    module load bioinfo/Orca/88df3b5\n\n"
+        "If you still encounter this error, please run the script using the environment's Python executable directly:\n"
+        "    /usr/local/bioinfo/src/Miniconda/Miniconda3/envs/orca-88df3b5_env/bin/python orcaPreditionsV1.07.py [args]\n\n"
+    )
+    raise e
 
 # Configure logging
 logging.basicConfig(

@@ -12,7 +12,7 @@ orca2matrix(
   chromsize,
   output = "OE",
   df_normmats.path = NULL,
-  model = 3.2e+07,
+  model = 32000000,
   wpos = NULL,
   verbose = TRUE
 )
