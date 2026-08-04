@@ -56,12 +56,18 @@ metadataWT_customWindow_Alphagenome = function(DNAstring, DNAstring_name, start.
     strand = "*"
   ) %>% GenomicRanges::reduce() %>% GenomicRanges::tile(width = max.window.size) %>% BiocGenerics::unlist()
 
+  # Calculate start and stop of each tiled window to center them in the 1048576 sequence
+  start_w = GenomicRanges::start(gr1)
+  stop_w = GenomicRanges::end(gr1)
+  gr_width = stop_w - start_w + 1
+  left_flank = floor((1048576 - gr_width) / 2)
+
   ### create metadata
   metadataWT = tibble::tibble(
     chr = DNAstring_name,
-    start.window = GenomicRanges::start(gr1),
-    stop.window = GenomicRanges::end(gr1),
-    start.pred = ifelse(start.window - 524288 < 1, 1, start.window - 524288),
+    start.window = start_w,
+    stop.window = stop_w,
+    start.pred = ifelse(start_w - left_flank < 1, 1, start_w - left_flank),
     stop.pred = start.pred + 1048576 - 1,
     ID = paste0("WT_", 1:length(start.pred)),
     scale = 1048576,
