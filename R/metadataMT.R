@@ -44,7 +44,7 @@ metadataMT = function(metadataWT, mutated.width, rep = 1){
 
   for(r in 1:rep){ # make the following processes as many time as rep value
     metadataMT_list[[r]] = lapply(1:nrow(metadataWT), function(i) {
-      tibble::tibble(
+      base_df <- tibble::tibble(
         chr = metadataWT$chr[i],
         start.window = metadataWT$start.window[i],
         stop.window = metadataWT$stop.window[i],
@@ -52,14 +52,15 @@ metadataMT = function(metadataWT, mutated.width, rep = 1){
         stop.pred = metadataWT$stop.pred[i],
         start.mut = seq(metadataWT$start.window[i], metadataWT$stop.window[i] - mutated.width + 1, mutated.width),
         stop.mut = start.mut + mutated.width - 1,
-        ID = paste0("MT_", i, "_", 1:length(start.mut), "_", r),
-        model = 1e6,
-        scale = 1e6,
-        wpos = 0.5e6,
-        mpos = 0.5e6,
-        model_HFF = metadataWT$model_HFF[i],
-        model_ESC = metadataWT$model_ESC[i]
+        ID = paste0("MT_", i, "_", 1:length(start.mut), "_", r)
       )
+
+      other_cols <- setdiff(names(metadataWT), c("chr", "start.window", "stop.window", "start.pred", "stop.pred", "ID"))
+      other_df <- metadataWT[i, other_cols, drop = FALSE]
+      other_df_recycled <- other_df[rep(1, nrow(base_df)), , drop = FALSE]
+      row.names(other_df_recycled) <- NULL
+
+      tibble::as_tibble(cbind(base_df, other_df_recycled))
     }) %>% dplyr::bind_rows()
   }
   metadataMT = dplyr::bind_rows(metadataMT_list)
