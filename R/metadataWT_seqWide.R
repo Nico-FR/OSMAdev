@@ -23,8 +23,8 @@
 #' * chr <numeric> : the name of the sequence
 #' * start.window <numeric> : start of the window that will contain the mutations
 #' * stop.window <numeric> : stop of the window that will contain the mutations
-#' * start.mat <numeric> : the first position of the 1Mb sequence
-#' * stop.mat <numeric> : the last position of the 1Mb sequence
+#' * start.pred <numeric> : the first position of the 1Mb sequence
+#' * stop.pred <numeric> : the last position of the 1Mb sequence
 #' * ID <character> : the name of the wild type sequence "WT_x.fa" with x an incremental number
 #' * A,C,T,G <numeric> : 4 column with the frequencies of each polynucleotides on the 1Mb sequence.
 #' * model = 1000000 : ORCA parameter cf ORCA documentation
@@ -61,8 +61,8 @@ metadataWT_seqWide = function(DNAstring, DNAstring_name, window.size, model_HFF,
     chr = DNAstring_name,
     start.window = seq(first.start.window, length(DNAstring) - first.start.window + 1 - window.size, by = window.size),
     stop.window = start.window + window.size -1,
-    start.mat = start.window - first.start.window + 1,
-    stop.mat = start.mat + 1e6 - 1,
+    start.pred = start.window - first.start.window + 1,
+    stop.pred = start.pred + 1e6 - 1,
     ID = paste0("WT_", 1:length(start.window)),
     model = 1e6,
     scale = 1e6,
@@ -73,7 +73,7 @@ metadataWT_seqWide = function(DNAstring, DNAstring_name, window.size, model_HFF,
   )
 
   ## computation of nucleotides frequencies
-  views_WT <- Biostrings::Views(DNAstring, start = metadataWT$start.mat, end = metadataWT$stop.mat)
+  views_WT <- Biostrings::Views(DNAstring, start = metadataWT$start.pred, end = metadataWT$stop.pred)
   freq.WT <- Biostrings::letterFrequency(views_WT, letters=c("A", "T", "G", "C"), as.prob = TRUE)
 
   ## add nucleotides frequencies to the metadata tibble

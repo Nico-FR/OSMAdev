@@ -50,8 +50,8 @@ writeFastaMT = function(DNAstring, metadataWT, metadataMT, workdir = "./", gzip 
 
     subset_metadataMT = metadataMT.lst[[i]]
 
-    START.MAT = unique(subset_metadataMT$start.mat)
-    STOP.MAT = unique(subset_metadataMT$stop.mat)
+    START.MAT = unique(subset_metadataMT$start.pred)
+    STOP.MAT = unique(subset_metadataMT$stop.pred)
     START.WINDOW = unique(subset_metadataMT$start.window)
 
     #get 1Mb DNA sequences from metadataWT
@@ -66,8 +66,8 @@ writeFastaMT = function(DNAstring, metadataWT, metadataMT, workdir = "./", gzip 
     MT.fa.lst = lapply(1:nrow(subset_metadataMT), function(i2) {
 
       shufDNA(dna.string = FASTA,
-                       start = subset_metadataMT$start.mut[i2] - subset_metadataMT$start.mat[i2] + 1, #relative position according to FASTA sequence
-                       stop = subset_metadataMT$stop.mut[i2] - subset_metadataMT$start.mat[i2] + 1, #relative position according to FASTA sequence
+                       start = subset_metadataMT$start.mut[i2] - subset_metadataMT$start.pred[i2] + 1, #relative position according to FASTA sequence
+                       stop = subset_metadataMT$stop.mut[i2] - subset_metadataMT$start.pred[i2] + 1, #relative position according to FASTA sequence
                        probability = freq)
     }) %>% Biostrings::DNAStringSet()
 

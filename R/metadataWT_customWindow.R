@@ -22,8 +22,8 @@
 #' * chr <numeric> : the number of the chromosome
 #' * start.window <numeric> : start of the window that will contain the mutations
 #' * stop.window <numeric> : stop of the window that will contain the mutations
-#' * start.mat <numeric> : the first position of the 1Mb sequence
-#' * stop.mat <numeric> : the last position of the 1Mb sequence
+#' * start.pred <numeric> : the first position of the 1Mb sequence
+#' * stop.pred <numeric> : the last position of the 1Mb sequence
 #' * ID <character> : the name of the wild type sequence "WT_x.fa" with x an incremental number
 #' * A,C,T,G <numeric> : 4 column with the frequences of each nucleotides on the 1Mb sequence.
 #' * model = 1000000 : ORCA parameter cf ORCA documentation
@@ -71,9 +71,9 @@ metadataWT_customWindow = function(DNAstring, DNAstring_name, start.windows, sto
     chr = DNAstring_name,
     start.window = GenomicRanges::start(gr1),
     stop.window = GenomicRanges::end(gr1),
-    start.mat = ifelse(start.window - 0.5e6 < 1, 1, start.window - 0.5e6),
-    stop.mat = start.mat + 1e6 - 1,
-    ID = paste0("WT_", 1:length(start.mat)),
+    start.pred = ifelse(start.window - 0.5e6 < 1, 1, start.window - 0.5e6),
+    stop.pred = start.pred + 1e6 - 1,
+    ID = paste0("WT_", 1:length(start.pred)),
     model = 1e6,
     scale = 1e6,
     wpos = 0.5e6,
@@ -82,15 +82,15 @@ metadataWT_customWindow = function(DNAstring, DNAstring_name, start.windows, sto
     model_ESC = ifelse(model_ESC, 1, 0)
   )
 
-  # Ensure that stop.mat does not exceed the length of the DNAstring
-  metadataWT$stop.mat = pmin(metadataWT$stop.mat, dna.length)
+  # Ensure that stop.pred does not exceed the length of the DNAstring
+  metadataWT$stop.pred = pmin(metadataWT$stop.pred, dna.length)
 
   # Ensure that width is still 1Mb
-  metadataWT$start.mat = metadataWT$stop.mat - 1e6 + 1
+  metadataWT$start.pred = metadataWT$stop.pred - 1e6 + 1
 
   ## computation of nucleotides frequences
   freq.WT = sapply(1:nrow(metadataWT),function(i){
-    str = DNAstring[metadataWT$start.mat[i]:metadataWT$stop.mat[i]]
+    str = DNAstring[metadataWT$start.pred[i]:metadataWT$stop.pred[i]]
     Biostrings::letterFrequency(str, letters=c("A","T","G", "C"), as.prob = TRUE)
   }) %>% t
 

@@ -31,7 +31,7 @@ writeFastaWT = function(DNAstring, metadataWT, workdir ="./", gzip = TRUE) {
   }
 
   #create DNAStringSet
-  WT.fa.lst = Biostrings::DNAStringSet(DNAstring, start = metadataWT$start.mat, end = metadataWT$stop.mat)
+  WT.fa.lst = Biostrings::DNAStringSet(DNAstring, start = metadataWT$start.pred, end = metadataWT$stop.pred)
   names(WT.fa.lst) = metadataWT$ID
   message("Writing ", nrow(metadataWT), " WT fasta files...")
 

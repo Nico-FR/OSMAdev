@@ -123,7 +123,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
   #Dynamically managed extension for fread
   ext <- if(matrix.gz) ".tsv.gz" else ".tsv"
 
-  #loop for each start.mat in metadataMT.lst (i.e each MT matrix)
+  #loop for each start.pred in metadataMT.lst (i.e each MT matrix)
   for (i in 1:length(metadataMT.lst)){
 
     #get the corresponding WT matrix
@@ -149,7 +149,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       # lSIC OPTIMIZATION: Pre-calculation of the lSIC parameters for this WT matrix
       if (lSIC) {
         bin.width <- metadataWT$scale[WT_idx] / 250
-        start_mat <- metadataWT$start.mat[WT_idx]
+        start_mat <- metadataWT$start.pred[WT_idx]
       }
       # ====================================================
 
@@ -197,7 +197,7 @@ analyseOrcaPredictions = function(predictions.dir, metadataWT, metadataMT, matri
       # lSIC OPTIMIZATION: Pre-calculation of the lSIC parameters for this WT matrix
       if (lSIC) {
         bin.width <- metadataWT$scale[WT_idx] / 250
-        start_mat <- metadataWT$start.mat[WT_idx]
+        start_mat <- metadataWT$start.pred[WT_idx]
       }
       # ====================================================
 

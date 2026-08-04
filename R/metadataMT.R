@@ -16,8 +16,8 @@
 #' * chr <numeric> : the number of the chromosome
 #' * start.window <numeric> : start of the window that will contain the mutations
 #' * stop.window <numeric> : stop of the window that will contain the mutations
-#' * start.mat <numeric> : the first position of the 1Mb sequence
-#' * stop.mat <numeric> : the last position of the 1Mb sequence
+#' * start.pred <numeric> : the first position of the 1Mb sequence
+#' * stop.pred <numeric> : the last position of the 1Mb sequence
 #' * start.mut <numeric> : start of mutated window
 #' * stop.mut <numeric> : stop of the mutated window
 #' * ID <character> : the name of the mutated type sequence "MT_x_y_z.fa" with: x the number of the related WildType sequence, y an incremental number for each different mutated window, z an incremental number for each repetition
@@ -48,8 +48,8 @@ metadataMT = function(metadataWT, mutated.width, rep = 1){
         chr = metadataWT$chr[i],
         start.window = metadataWT$start.window[i],
         stop.window = metadataWT$stop.window[i],
-        start.mat = metadataWT$start.mat[i],
-        stop.mat = metadataWT$stop.mat[i],
+        start.pred = metadataWT$start.pred[i],
+        stop.pred = metadataWT$stop.pred[i],
         start.mut = seq(metadataWT$start.window[i], metadataWT$stop.window[i] - mutated.width + 1, mutated.width),
         stop.mut = start.mut + mutated.width - 1,
         ID = paste0("MT_", i, "_", 1:length(start.mut), "_", r),
