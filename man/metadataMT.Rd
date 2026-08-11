@@ -27,16 +27,10 @@ Column description:
 \item chr \if{html}{\out{<numeric>}} : the number of the chromosome
 \item start.window \if{html}{\out{<numeric>}} : start of the window that will contain the mutations
 \item stop.window \if{html}{\out{<numeric>}} : stop of the window that will contain the mutations
-\item start.mat \if{html}{\out{<numeric>}} : the first position of the 1Mb sequence
-\item stop.mat \if{html}{\out{<numeric>}} : the last position of the 1Mb sequence
+\item start.pred \if{html}{\out{<numeric>}} : the first position of the 1Mb sequence
+\item stop.pred \if{html}{\out{<numeric>}} : the last position of the 1Mb sequence
 \item start.mut \if{html}{\out{<numeric>}} : start of mutated window
 \item stop.mut \if{html}{\out{<numeric>}} : stop of the mutated window
 \item ID \if{html}{\out{<character>}} : the name of the mutated type sequence "MT_x_y_z.fa" with: x the number of the related WildType sequence, y an incremental number for each different mutated window, z an incremental number for each repetition
-\item model = 1000000 : ORCA parameter cf ORCA documentation
-\item scale = 1000000 : ORCA parameter cf ORCA documentation
-\item wpos  500000 : ORCA parameter cf ORCA documentation
-\item mpos  500000 : ORCA parameter cf ORCA documentation
-\item model_HFF <0 or 1> : ORCA parameter. predict HFF matrices if 1
-\item model_ESC <0 or 1> : ORCA parameter. predict ESC matrices if 1
 }
 }

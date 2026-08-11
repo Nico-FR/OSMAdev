@@ -45,8 +45,8 @@ Column description:
 \item chr \if{html}{\out{<numeric>}} : the number of the chromosome
 \item start.window \if{html}{\out{<numeric>}} : start of the window that will contain the mutations
 \item stop.window \if{html}{\out{<numeric>}} : stop of the window that will contain the mutations
-\item start.mat \if{html}{\out{<numeric>}} : the first position of the 1Mb sequence
-\item stop.mat \if{html}{\out{<numeric>}} : the last position of the 1Mb sequence
+\item start.pred \if{html}{\out{<numeric>}} : the first position of the 1Mb sequence
+\item stop.pred \if{html}{\out{<numeric>}} : the last position of the 1Mb sequence
 \item ID \if{html}{\out{<character>}} : the name of the wild type sequence "WT_x.fa" with x an incremental number
 \item A,C,T,G \if{html}{\out{<numeric>}} : 4 column with the frequences of each nucleotides on the 1Mb sequence.
 \item model = 1000000 : ORCA parameter cf ORCA documentation
