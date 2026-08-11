@@ -26,7 +26,7 @@
 #' * A,C,T,G <numeric> : 4 column with the frequences of each nucleotides on the 1048576 bp sequence.
 #' * scale = 1048576 : ALPHAGENOME parameter
 #' * organism <character> : ALPHAGENOME parameter
-#' * ontology_term <character> : ALPHAGENOME parameter
+#' * ontology <character> : ALPHAGENOME parameter
 #'
 #' @importFrom magrittr %>%
 #' @importFrom Biostrings letterFrequency
@@ -37,7 +37,7 @@
 #' @export
 
 
-metadataWT_customWindow_Alphagenome = function(DNAstring, DNAstring_name, start.windows, stop.windows, max.window.size, organism, ontology_term){
+metadataWT_customWindow_Alphagenome = function(DNAstring, DNAstring_name, start.windows, stop.windows, max.window.size, organism, ontology){
 
   if (max.window.size > 1048576){
     stop("window.size size must be smaller than 1048576")
@@ -72,7 +72,7 @@ metadataWT_customWindow_Alphagenome = function(DNAstring, DNAstring_name, start.
     ID = paste0("WT_", 1:length(start.pred)),
     scale = 1048576,
     organism = organism,
-    ontology_term = ontology_term
+    ontology = ontology
   )
 
   # Ensure that stop.pred does not exceed the length of the DNAstring

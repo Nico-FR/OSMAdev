@@ -21,12 +21,6 @@
 #' * start.mut <numeric> : start of mutated window
 #' * stop.mut <numeric> : stop of the mutated window
 #' * ID <character> : the name of the mutated type sequence "MT_x_y_z.fa" with: x the number of the related WildType sequence, y an incremental number for each different mutated window, z an incremental number for each repetition
-#' * model = 1000000 : ORCA parameter cf ORCA documentation
-#' * scale = 1000000 : ORCA parameter cf ORCA documentation
-#' * wpos  500000 : ORCA parameter cf ORCA documentation
-#' * mpos  500000 : ORCA parameter cf ORCA documentation
-#' * model_HFF <0 or 1> : ORCA parameter. predict HFF matrices if 1
-#' * model_ESC <0 or 1> : ORCA parameter. predict ESC matrices if 1
 #'
 #' @importFrom dplyr bind_rows arrange
 #' @importFrom tibble tibble
@@ -55,7 +49,7 @@ metadataMT = function(metadataWT, mutated.width, rep = 1){
         ID = paste0("MT_", i, "_", 1:length(start.mut), "_", r)
       )
 
-      other_cols <- setdiff(names(metadataWT), c("chr", "start.window", "stop.window", "start.pred", "stop.pred", "ID"))
+      other_cols <- setdiff(names(metadataWT), c("chr", "start.window", "stop.window", "start.pred", "stop.pred", "ID", "A", "T", "G", "C"))
       other_df <- metadataWT[i, other_cols, drop = FALSE]
       other_df_recycled <- other_df[rep(1, nrow(base_df)), , drop = FALSE]
       row.names(other_df_recycled) <- NULL
