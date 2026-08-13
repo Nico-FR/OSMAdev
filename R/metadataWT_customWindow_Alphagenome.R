@@ -10,7 +10,7 @@
 #' @param stop.windows numeric : vector of stop positions of the windows that will contain the mutations.
 #' @param max.window.size numeric : juxtaposed window will be reduce. If the width of the window is greater to max.window.size, the widow will be split. Must be smaller than 1048576.
 #' @param organism character : organism for AlphaGenome prediction (e.g., "human" or "mouse")
-#' @param ontology_term character : ontology term for AlphaGenome prediction
+#' @param ontology character : ontology term for AlphaGenome prediction
 #'
 #' @return dataframe
 #'
