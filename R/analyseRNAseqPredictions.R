@@ -10,7 +10,7 @@
 #' @param metadataMT data.frame. The metadata for the mutant sequences.
 #' @param regions.gr GRanges. Optional GRanges object representing specific genomic regions of interest to calculate local fold change. Default is NULL.
 #' @param bedgraph.gz logical. Default is FALSE. If TRUE, the function searches for gzipped files (.bedgraph.gz).
-#' @param track_nums numeric. Optional vector of track numbers to analyze. If specified, only tracks with track_num in track_nums are processed. Default is NULL.
+#' @param track_nums numeric. Optional vector of track numbers to analyze (see AlphagenomePredictionsMetadata.tsv). If specified, only tracks with track_num in track_nums are processed. Default is NULL.
 #'
 #' @return A data.table containing the mutation metadata with appended fold change scores (gFC_x, min_gFC_x) for all tracks.
 #'
@@ -86,15 +86,16 @@ analyseRNAseqPredictions = function(predictions.dir, metadataWT, metadataMT, reg
   # Convert the output table to data.table format
   results_df <- data.table::as.data.table(metadataMT)
 
+  # Pre-allocate gFC and lFC columns for all tracks
   gfc_cols <- c()
   lfc_cols_by_track <- list()
 
-  # Pre-allocate gFC and lFC columns for all tracks
+  # for each tracks IDs
   for (j in seq_along(track_ids)) {
     track_num <- meta1$track_num[j]
     gfc_col <- paste0("gFC_", track_num)
 
-    # We use NA_real_ instead of NA to strictly enforce the 'numeric' type natively.
+    # Create gFC column (We use NA_real_ instead of NA to strictly enforce the 'numeric' type natively).
     data.table::set(results_df, j = gfc_col, value = NA_real_)
     gfc_cols <- c(gfc_cols, gfc_col)
 
@@ -104,7 +105,7 @@ analyseRNAseqPredictions = function(predictions.dir, metadataWT, metadataMT, reg
         stop("regions.gr must be a GRanges object")
       }
 
-      # Generate column names for local fold change based on region names or boundaries
+      # Generate column names for local fold change based on region names (default) or boundaries
       region_names <- names(regions.gr)
       lfc_cols_by_track[[j]] <- sapply(seq_along(regions.gr), function(k) {
         r_start <- GenomicRanges::start(regions.gr)[k]

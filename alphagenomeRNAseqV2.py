@@ -18,8 +18,11 @@ from Bio import SeqIO
 try:
     from alphagenome.models import dna_client
     from alphagenome.data import genome
+    ALPHAGENOME_AVAILABLE = True
 except ImportError:
-    pass
+    dna_client = None
+    genome = None
+    ALPHAGENOME_AVAILABLE = False
 
 # Configure logging
 logging.basicConfig(
@@ -50,6 +53,10 @@ Mandatory columns are:
 # Examples:
 -----------
     python alphagenomeRNAseqV0.01.py -i input.tsv -f seq_folder -o output_folder --api_key YOUR_PRIVATE_KEY
+
+# computing ressources:
+-----------
+    2.90 s per prediction and 16G of RAM.
 """, formatter_class=argparse.RawDescriptionHelpFormatter)
     
     parser.add_argument("--input", "-i", type=str, required=True,
@@ -115,6 +122,11 @@ def validate_inputs(args):
         
     return df, seq_folder, output_folder
 
+def check_alphagenome_installed():
+    """Checks if alphagenome is installed and exits with an error if not."""
+    if not ALPHAGENOME_AVAILABLE:
+        logging.error("Failed to import 'alphagenome' package. Please ensure it is installed.")
+        sys.exit(1)
 
 def get_api_key(args):
     api_key = args.api_key
@@ -169,7 +181,7 @@ def get_sequence(ID, seq_dir):
 
 
 def export_bedgraph(chrom, values, filepath, compressed):
-    """Exports 1D track values as a single-column file containing only the value column with 6 significant digit."""
+    """Exports 1D track values as a single-column file containing only the value column with 5 significant digits."""
 
     float_format = '%.5g'
     
@@ -181,18 +193,41 @@ def export_bedgraph(chrom, values, filepath, compressed):
         np.savetxt(filepath, values, fmt=float_format)
 
 
+def get_organism_and_ontology(input_tsv_df):
+    """Extracts and maps organism and ontology terms from the input DataFrame."""
+    check_alphagenome_installed()
+    first_row = input_tsv_df.iloc[0]
+    org_str = str(first_row['organism']).strip().lower()
+    if org_str == 'human':
+        organism = dna_client.Organism.HOMO_SAPIENS
+    elif org_str == 'mouse':
+        organism = dna_client.Organism.MUS_MUSCULUS
+    else:
+        logging.error(f"Unsupported organism '{org_str}'.")
+        sys.exit(1)
+        
+    ontology_field = str(first_row['ontology'])
+    ontology_terms = [t.strip() for t in ontology_field.split(',') if t.strip()]
+    if not ontology_terms:
+        logging.error("No valid ontology terms specified.")
+        sys.exit(1)
+    return organism, ontology_terms, org_str
+
+
+def initialize_client(api_key):
+    """Initializes and returns the AlphaGenome DNA client."""
+    logging.info("Initializing AlphaGenome DNA client...")
+    dna_model = dna_client.create(api_key)
+    log_and_reset_timer("AlphaGenome client initialized in")
+    return dna_model
+
+
 def export_metadata(dna_model, organism, ontology_terms, output_dir, metadata_filename):
     """
     Checks output metadata, filters for OutputType.RNA_SEQ tracks and ontology terms,
     adds a 1-based track_num column, and exports to a TSV file.
     Returns the filtered metadata DataFrame and the number of matching tracks.
     """
-    try:
-        from alphagenome.models import dna_client
-    except ImportError:
-        logging.error("Failed to import 'alphagenome' package. Please ensure it is installed.")
-        sys.exit(1)
-
     logging.info("Checking output metadata to verify predictions...")
     try:
         output_metadata_df = dna_model.output_metadata(organism).concatenate()
@@ -227,14 +262,8 @@ def export_metadata(dna_model, organism, ontology_terms, output_dir, metadata_fi
     return matching_tracks, num_predictions
 
 
-def process_predictions(dna_model, input_tsv_df, seq_dir, output_dir, compress, matching_tracks, num_predictions):
+def process_predictions(dna_model, input_tsv_df, seq_dir, output_dir, compress, matching_tracks, num_predictions, organism, ontology_terms, org_str):
     """Processes batch predictions for the input TSV."""
-    try:
-        from alphagenome.models import dna_client
-        from alphagenome.data import genome
-    except ImportError:
-        logging.error("Failed to import 'alphagenome' package. Please ensure it is installed.")
-        sys.exit(1)
         
     # Prepare lists for batch prediction
     sequences_list = []
@@ -262,23 +291,6 @@ def process_predictions(dna_model, input_tsv_df, seq_dir, output_dir, compress, 
     if not sequences_list:
         logging.warning("No sequences to process.")
         return
-
-    # Since they are homogeneous, we can extract organism and ontology from the first row
-    first_row = input_tsv_df.iloc[0]
-    ontology_field = str(first_row['ontology'])
-    ontology_terms = [t.strip() for t in ontology_field.split(',') if t.strip()]
-    if not ontology_terms:
-        logging.error("No valid ontology terms specified.")
-        sys.exit(1)
-        
-    org_str = str(first_row['organism']).strip().lower()
-    if org_str == 'human':
-        organism = dna_client.Organism.HOMO_SAPIENS
-    elif org_str == 'mouse':
-        organism = dna_client.Organism.MUS_MUSCULUS
-    else:
-        logging.error(f"Unsupported organism '{org_str}'.")
-        sys.exit(1)
 
     logging.info(f"Calling AlphaGenome predict_sequences for {len(sequences_list)} sequences ({org_str}) with terms: {ontology_terms}")
     try:
@@ -333,11 +345,10 @@ def process_predictions(dna_model, input_tsv_df, seq_dir, output_dir, compress, 
             export_bedgraph(ID, track_values, filepath, compress)
             
         logging.info(f"RNA-seq predictions exported successfully for {ID}.")
-        
 
 
-if __name__ == "__main__":
-    args = parse_args()
+def run_pipeline(args):
+    """Orchestrates the entire RNA-seq prediction pipeline."""
     input_tsv_df, seq_dir, output_dir = validate_inputs(args)
     api_key = get_api_key(args)
     
@@ -345,39 +356,29 @@ if __name__ == "__main__":
     input_base = os.path.splitext(os.path.basename(args.input))[0]
     metadata_filename = f"{input_base}_AlphagenomePredictionsMetadata.tsv"
     
-    # Load AlphaGenome client temporarily to fetch metadata
-    try:
-        from alphagenome.models import dna_client
-    except ImportError:
-        logging.error("Failed to import 'alphagenome' package. Please ensure it is installed.")
-        sys.exit(1)
-        
-    # Map organism
-    first_row = input_tsv_df.iloc[0]
-    org_str = str(first_row['organism']).strip().lower()
-    if org_str == 'human':
-        organism = dna_client.Organism.HOMO_SAPIENS
-    elif org_str == 'mouse':
-        organism = dna_client.Organism.MUS_MUSCULUS
-    else:
-        logging.error(f"Unsupported organism '{org_str}'.")
-        sys.exit(1)
-        
-    ontology_field = str(first_row['ontology'])
-    ontology_terms = [t.strip() for t in ontology_field.split(',') if t.strip()]
-    
-    logging.info("Initializing AlphaGenome DNA client...")
-    dna_model = dna_client.create(api_key)
-    log_and_reset_timer("AlphaGenome client initialized in")
+    organism, ontology_terms, org_str = get_organism_and_ontology(input_tsv_df)
+    dna_model = initialize_client(api_key)
     
     matching_tracks, num_predictions = export_metadata(dna_model, organism, ontology_terms, output_dir, metadata_filename)
     
     # Process predictions in batches of 1000
     batch_size = 1000
     num_rows = len(input_tsv_df)
+
+    if num_rows > batch_size:
+        logging.info(f"Total number of predictions ({num_rows}) exceeds {batch_size}. Analyses will be performed in batches of {batch_size}.")
+    
     for start_idx in range(0, num_rows, batch_size):
         chunk_df = input_tsv_df.iloc[start_idx : start_idx + batch_size]
-        process_predictions(dna_model, chunk_df, seq_dir, output_dir, args.compress, matching_tracks, num_predictions)
+        process_predictions(
+            dna_model, chunk_df, seq_dir, output_dir, args.compress,
+            matching_tracks, num_predictions, organism, ontology_terms, org_str
+        )
         
     # Reset/log the timer only when all predictions and file savings are completed
     log_and_reset_timer("Batch predictions and exports successfully completed in")
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    run_pipeline(args)
