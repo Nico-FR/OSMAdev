@@ -2,7 +2,7 @@
 
 export(SIC)
 export(analyseOrcaPredictions)
-export(analyseRNAseqPredictions)
+export(analyse1DPredictions)
 export(cnvDNA)
 export(delMAT)
 export(insDNA)

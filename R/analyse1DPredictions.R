@@ -1,9 +1,10 @@
-#' @title Calculate fold change to measure RNA-seq mutation effects
+#' @title Calculate fold change to measure mutation effects on 1D track predictions
 #'
 #' @description
-#' This function calculates fold change scores to measure the effect of mutations on gene/transcript expression levels (RNA-seq).
+#' This function calculates fold change scores to measure the effect of mutations on 1D genomic signal predictions
+#' (such as RNA-seq expression levels, ChIP-seq histone/TF signal, CAGE, etc.).
 #' It reads predicted 1D track values (BedGraph files) from a specified directory, processes them based on WT and MT metadatas,
-#' and computes global and optional local fold changes.
+#' and computes global and optional local fold changes across all predicted tracks.
 #'
 #' @param predictions.dir character. The directory containing the prediction files (BedGraph format) and the two metadata files.
 #' @param metadataWT data.frame. The metadata for the wild-type sequences.
@@ -19,7 +20,7 @@
 #' @importFrom GenomicRanges start end seqnames
 #'
 #' @export
-analyseRNAseqPredictions = function(predictions.dir, metadataWT, metadataMT, regions.gr = NULL, bedgraph.gz = FALSE, track_nums = NULL) {
+analyse1DPredictions = function(predictions.dir, metadataWT, metadataMT, regions.gr = NULL, bedgraph.gz = FALSE, track_nums = NULL) {
 
   # -------------------------------------------------------------------------
   # 1. INPUT VALIDATION & METADATA PARSING
