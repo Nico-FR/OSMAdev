@@ -58,4 +58,3 @@ writeFastaWT = function(DNAstring, metadataWT, workdir ="./", gzip = TRUE) {
 
   return(message(nrow(metadataWT), " fasta files saved in ", outdir))
 }
-
